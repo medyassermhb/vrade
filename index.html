@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expertise VRADE | Assistant Pro</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        .pro-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .input-focus:focus { border-color: #4f46e5; ring: 2px; ring-color: #e0e7ff; }
+        .font-mono-num { font-variant-numeric: tabular-nums; font-family: 'Inter', monospace; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <!-- Chosen Palette: Indigo & Slate Professional -->
+    <!-- Application Structure Plan: 
+         La SPA est structurée pour transformer un rapport de calcul technique en une expérience exploratoire. 
+         - Architecture Thématique : Séparation claire entre la saisie (paramètres), la synthèse visuelle (KPI et graphiques) et la preuve d'audit (tableau). 
+         - Flux Utilisateur : Saisie à gauche -> Calculs et IA au centre -> Détails mathématiques en bas. 
+         - Justification : Cette structure favorise la compréhension immédiate de la valeur finale tout en permettant aux auditeurs de vérifier la conformité des tranches annuelles.
+    -->
+
+    <div class="max-w-7xl mx-auto space-y-8 relative">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl pro-shadow border border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 text-white p-3 rounded-xl shadow-lg">
+                    <i class="fa-solid fa-car-side text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Expertise VRADE Pro</h1>
+                    <p class="text-slate-500 text-sm mt-1">Calculateur de Valeur Vénale (DHS) basé sur les standards du marché marocain.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="px-5 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-200 transition flex items-center gap-2 border border-slate-200">
+                    <i class="fa-solid fa-print"></i> Imprimer
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Parameters Sidebar (Saisie) -->
+            <div class="lg:col-span-4 bg-white p-8 rounded-2xl pro-shadow border border-slate-100 space-y-6">
+                <div class="border-b border-slate-100 pb-4">
+                    <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider text-sm">Données du Dossier</h2>
+                    <p class="text-slate-400 text-xs mt-1">Saisissez les paramètres pour mettre à jour l'expertise.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Valeur Neuve (DHS)</label>
+                        <input type="text" id="v_valeur_display" placeholder="0,00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none font-bold text-lg text-right font-mono-num" oninput="formatInput(this); updateVrade();">
+                        <input type="hidden" id="v_valeur_raw" value="">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Date MEC</label>
+                            <input type="date" id="v_dmec" value="2020-05-12" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm" onchange="updateVrade()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Date Sinistre</label>
+                            <input type="date" id="v_sinistre" value="2026-02-01" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm" onchange="updateVrade()">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Catégorie Fiscale</label>
+                        <select id="v_cat" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm appearance-none" onchange="updateVrade()">
+                            <option value="PP/Non Utilitaire">VH Particulier / Non Utilitaire</option>
+                            <option value="Location/Utilitaire" selected>VH Location / Utilitaire / Société</option>
+                            <option value="Bus et Camions">Bus et Camions</option>
+                            <option value="Engins/Agricole">Engins de chantier et Agricoles</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Puissance (CV)</label>
+                            <input type="number" id="v_pf" value="7" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none font-medium" oninput="updateVrade()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Carburant</label>
+                            <select id="v_carb" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm" onchange="updateVrade()">
+                                <option value="Diesel" selected>Diesel</option>
+                                <option value="Essence">Essence</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="v_warning" class="hidden p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs flex items-start gap-2">
+                    <i class="fa-solid fa-circle-exclamation text-base"></i>
+                    <span>La Puissance Fiscale (PF) doit être ≥ 12 CV pour les Camions/Bus selon la réglementation.</span>
+                </div>
+            </div>
+
+            <!-- Results Dashboard (Analyse et Graphiques) -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                
+                <!-- KPI Cards -->
+                <div class="bg-slate-900 p-8 rounded-2xl text-white pro-shadow flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div>
+                        <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest">Valeur Vénale Résiduelle Estimée</p>
+                        <h3 class="text-4xl font-extrabold mt-1 font-mono-num" id="kpi-vv-final">0,00 DHS</h3>
+                    </div>
+                    <div class="text-right border-l border-slate-700 pl-6 hidden md:block">
+                        <p class="text-slate-400 text-xs font-bold uppercase">Abattement de vétusté total</p>
+                        <p class="text-xl font-bold text-rose-400 font-mono-num" id="kpi-dep-total">0,00 DHS</p>
+                    </div>
+                </div>
+
+                <!-- Visualizations -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
+                    <div class="bg-white p-6 rounded-2xl pro-shadow border border-slate-100 flex flex-col">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-4 text-center">Évolution de la Perte de Valeur</h4>
+                        <div class="chart-container">
+                            <canvas id="chartEvo"></canvas>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-4 text-center italic">Courbe dégressive basée sur les tranches annuelles officielles.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl pro-shadow border border-slate-100 flex flex-col">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-4 text-center">Répartition Valeur / Vétusté</h4>
+                        <div class="chart-container">
+                            <canvas id="chartDist"></canvas>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-4 text-center italic">Proportion résiduelle au jour du sinistre.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Audit Table (Détail Textuel et Numérique) -->
+        <section class="bg-white rounded-2xl pro-shadow border border-slate-100 overflow-hidden">
+            <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Tableau d'Audit Prorata Temporis</h3>
+                    <p class="text-sm text-slate-500 mt-1">Détail des calculs par période d'anniversaire MEC.</p>
+                </div>
+                <div class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-100" id="kpi-anciennete">
+                    0 ans, 0 jours
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse font-mono-num text-sm">
+                    <thead>
+                        <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50/80">
+                            <th class="p-4 border-b">Année</th>
+                            <th class="p-4 border-b">Période Effective</th>
+                            <th class="p-4 border-b text-center">Taux</th>
+                            <th class="p-4 border-b text-right">Val. Début (DHS)</th>
+                            <th class="p-4 border-b text-right">Perte (DHS)</th>
+                            <th class="p-4 border-b text-right">Val. Fin (DHS)</th>
+                            <th class="p-4 border-b text-center">Jours</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vradeTable" class="divide-y divide-slate-50">
+                        <!-- Lignes injectées par JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-400 text-xs pb-12">
+            <p>© 2026 Système Expert VRADE Solo.</p>
+            <p class="mt-1 opacity-60">Matrice de dépréciation appliquée : 20%/20%/15%/10%...5%. Calcul inclusive +1 jour.</p>
+        </footer>
+    </div>
+
+    <!-- Script Area -->
+    <script>
+        // --- CONFIGURATION & STATE ---
+        let globalData = {};
+        let chartEvo, chartDist;
+
+        const MATRICE = [
+            { cat: "PP/Non Utilitaire", pMin: 0, pMax: 7, carb: "Diesel", ans: [0.20, 0.15, 0.10, 0.10, 0.10] },
+            { cat: "PP/Non Utilitaire", pMin: 0, pMax: 7, carb: "Essence", ans: [0.20, 0.15, 0.10, 0.10, 0.10] },
+            { cat: "PP/Non Utilitaire", pMin: 8, pMax: 11, carb: "Diesel", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
+            { cat: "PP/Non Utilitaire", pMin: 8, pMax: 11, carb: "Essence", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
+            { cat: "PP/Non Utilitaire", pMin: 12, pMax: 99, carb: "Diesel", ans: [0.27, 0.20, 0.15, 0.10, 0.10] },
+            { cat: "PP/Non Utilitaire", pMin: 12, pMax: 99, carb: "Essence", ans: [0.30, 0.25, 0.20, 0.10, 0.10] },
+            { cat: "Location/Utilitaire", pMin: 0, pMax: 7, carb: "Diesel", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
+            { cat: "Location/Utilitaire", pMin: 0, pMax: 7, carb: "Essence", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
+            { cat: "Location/Utilitaire", pMin: 8, pMax: 11, carb: "Diesel", ans: [0.30, 0.25, 0.20, 0.15, 0.10] },
+            { cat: "Location/Utilitaire", pMin: 8, pMax: 11, carb: "Essence", ans: [0.30, 0.25, 0.20, 0.15, 0.10] },
+            { cat: "Location/Utilitaire", pMin: 12, pMax: 99, carb: "Diesel", ans: [0.32, 0.25, 0.20, 0.15, 0.10] },
+            { cat: "Location/Utilitaire", pMin: 12, pMax: 99, carb: "Essence", ans: [0.32, 0.25, 0.20, 0.15, 0.10] },
+            { cat: "Bus et Camions", pMin: 12, pMax: 999, carb: "Diesel", ans: [0.30, 0.25, 0.20, 0.15, 0.10] },
+            { cat: "Bus et Camions", pMin: 12, pMax: 999, carb: "Essence", ans: [0.40, 0.35, 0.30, 0.25, 0.20] }
+        ];
+
+        // --- UTILS ---
+        function formatDHS(num, withPrefix = true) {
+            const f = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num).replace(/,/g, " ").replace(/\s(?=\d{2}$)/, ",");
+            return withPrefix ? f + " DHS" : f;
+        }
+
+        function formatInput(el) {
+            let val = el.value.replace(/[^\d]/g, "");
+            if(!val) return;
+            let numeric = parseFloat(val) / 100;
+            document.getElementById('v_valeur_raw').value = numeric;
+            el.value = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(numeric);
+        }
+
+        // --- CORE CALCULATION ---
+        function getTaux(annee, cat, p, carb) {
+            if (cat === "Engins/Agricole") return 0;
+            if (annee >= 11) return 0.05;
+            const line = MATRICE.find(l => l.cat === cat && p >= l.pMin && p <= l.pMax && l.carb === carb);
+            if (!line) return 0.10;
+            return line.ans[Math.min(annee - 1, 4)];
+        }
+
+        function updateVrade() {
+            const valNeuve = parseFloat(document.getElementById('v_valeur_raw').value) || 0;
+            const dmecInput = document.getElementById('v_dmec').value;
+            const sinistreInput = document.getElementById('v_sinistre').value;
+            const cat = document.getElementById('v_cat').value;
+            const pf = parseInt(document.getElementById('v_pf').value) || 0;
+            const carb = document.getElementById('v_carb').value;
+
+            if(!dmecInput || !sinistreInput) return;
+            
+            const dmec = new Date(dmecInput);
+            const sinistre = new Date(sinistreInput);
+
+            const warning = document.getElementById('v_warning');
+            if(cat === "Bus et Camions" && pf < 12) warning.classList.remove('hidden'); else warning.classList.add('hidden');
+
+            if(valNeuve <= 0 || isNaN(dmec.getTime()) || isNaN(sinistre.getTime()) || sinistre < dmec) return;
+
+            const tableRows = [];
+            const labels = ["Neuf"];
+            const plotData = [valNeuve];
+
+            let valAct = valNeuve;
+            let dAnniv = new Date(dmec);
+            let annee = 1;
+
+            while(true) {
+                let dStart = new Date(dAnniv);
+                let dNext = new Date(dStart);
+                dNext.setFullYear(dStart.getFullYear() + 1);
+                
+                let isLast = dNext > sinistre;
+                let dEndEff = isLast ? new Date(sinistre) : new Date(dNext.getTime() - 86400000);
+                
+                const diff = Math.abs(dEndEff.getTime() - dStart.getTime());
+                const jours = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+                
+                const t = getTaux(annee, cat, pf, carb);
+                const perte = isLast ? (valAct * t * (jours / 365)) : (valAct * t);
+                const valFin = valAct - perte;
+
+                tableRows.push({ annee, start: dStart, end: dEndEff, t, valDeb: valAct, perte, valFin, jours });
+                labels.push("An " + annee);
+                plotData.push(valFin);
+
+                if(isLast) break;
+                valAct = valFin;
+                dAnniv = dNext;
+                annee++;
+                if(annee > 50) break;
+            }
+
+            const lastResult = tableRows[tableRows.length - 1];
+            
+            globalData = {
+                valNeuve, dmec, sinistre, cat, pf, carb,
+                vv: lastResult.valFin,
+                anciennete: `${annee - 1} ans et ${lastResult.jours} jours`
+            };
+
+            document.getElementById('kpi-vv-final').innerText = formatDHS(lastResult.valFin);
+            document.getElementById('kpi-dep-total').innerText = formatDHS(valNeuve - lastResult.valFin);
+            document.getElementById('kpi-anciennete').innerText = globalData.anciennete;
+
+            document.getElementById('vradeTable').innerHTML = tableRows.map(r => `
+                <tr class="hover:bg-indigo-50/30 transition">
+                    <td class="p-4 font-bold text-indigo-600">${r.annee}</td>
+                    <td class="p-4 text-xs text-slate-500">${r.start.toLocaleDateString('fr-FR')} au ${r.end.toLocaleDateString('fr-FR')}</td>
+                    <td class="p-4 text-center font-bold text-slate-700">${(r.t*100).toFixed(0)}%</td>
+                    <td class="p-4 text-right">${formatDHS(r.valDeb, false)}</td>
+                    <td class="p-4 text-right text-rose-500 font-semibold">-${formatDHS(r.perte, false)}</td>
+                    <td class="p-4 text-right font-extrabold text-slate-900">${formatDHS(r.valFin, false)}</td>
+                    <td class="p-4 text-center text-slate-400 font-bold">${r.jours}</td>
+                </tr>
+            `).join('');
+
+            updateCharts(labels, plotData, lastResult.valFin, valNeuve - lastResult.valFin);
+        }
+
+        function updateCharts(labels, values, finalVal, lossVal) {
+            if(chartEvo) chartEvo.destroy();
+            if(chartDist) chartDist.destroy();
+            const ctx1 = document.getElementById('chartEvo').getContext('2d');
+            chartEvo = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Valeur résiduelle', data: values, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#fff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+            const ctx2 = document.getElementById('chartDist').getContext('2d');
+            chartDist = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Valeur Restante', 'Dépréciation'],
+                    datasets: [{ data: [finalVal, lossVal], backgroundColor: ['#10b981', '#f43f5e'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        window.onload = updateVrade;
+    </script>
+</body>
+</html>
