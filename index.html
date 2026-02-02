@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expertise VRADE | Assistant Pro</title>
+    <title>BETCAM | Expertise VRADE & Décision</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Bibliothèques Externes -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- html2pdf.js pour le téléchargement PDF direct -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f1f3f6; 
+        }
         
         .chart-container {
             position: relative;
@@ -22,47 +27,82 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            height: 300px;
-            max-height: 400px;
+            height: 320px;
         }
         
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        .pro-shadow { 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
         }
-        
-        .pro-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .input-focus:focus { border-color: #4f46e5; ring: 2px; ring-color: #e0e7ff; }
-        .font-mono-num { font-variant-numeric: tabular-nums; font-family: 'Inter', monospace; }
+
+        .input-focus:focus { 
+            border-color: #6366f1; 
+            ring: 4px; 
+            ring-color: rgba(99, 102, 241, 0.1); 
+        }
+
+        .font-mono-num { 
+            font-variant-numeric: tabular-nums; 
+            letter-spacing: -0.02em;
+        }
+
+        .seniority-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 8px 12px -3px rgba(16, 185, 129, 0.15);
+        }
+
+        .logo-box {
+            width: 70px;
+            height: 70px;
+            background: #4f46e5;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.4);
+            color: white;
+            font-size: 2rem;
+        }
+
+        .decision-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Styles spécifiques au PDF caché */
+        #pdf-export-template {
+            display: none;
+            background: white;
+            color: black;
+            padding: 20px;
+            width: 700px; /* Ajusté pour tenir sur A4 (approx 190mm imprimable) */
+            box-sizing: border-box;
+        }
+
+        @media print {
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased p-4 md:p-8">
 
-    <!-- Chosen Palette: Indigo & Slate Professional -->
-    <!-- Application Structure Plan: 
-         La SPA est structurée pour transformer un rapport de calcul technique en une expérience exploratoire. 
-         - Architecture Thématique : Séparation claire entre la saisie (paramètres), la synthèse visuelle (KPI et graphiques) et la preuve d'audit (tableau). 
-         - Flux Utilisateur : Saisie à gauche -> Calculs et IA au centre -> Détails mathématiques en bas. 
-         - Justification : Cette structure favorise la compréhension immédiate de la valeur finale tout en permettant aux auditeurs de vérifier la conformité des tranches annuelles.
-    -->
-
-    <div class="max-w-7xl mx-auto space-y-8 relative">
+    <div class="max-w-7xl mx-auto space-y-8">
         
         <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl pro-shadow border border-slate-100">
-            <div class="flex items-center gap-4">
-                <div class="bg-indigo-600 text-white p-3 rounded-xl shadow-lg">
-                    <i class="fa-solid fa-car-side text-2xl"></i>
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/80 backdrop-blur-md p-6 rounded-[2rem] pro-shadow border border-white/20">
+            <div class="flex items-center gap-5">
+                <div class="logo-box">
+                    <i class="fa-solid fa-car-side"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Expertise VRADE Pro</h1>
-                    <p class="text-slate-500 text-sm mt-1">Calculateur de Valeur Vénale (DHS) basé sur les standards du marché marocain.</p>
+                    <h1 class="text-2xl font-medium text-slate-900 tracking-tight leading-none mb-1">Cabinet D'expertise <span class="text-indigo-600">BETCAM</span></h1>
+                    <p class="text-slate-500 text-[11px] uppercase font-medium tracking-[0.15em] flex items-center gap-2 opacity-80">
+                         Expertise & Arbitrage Économique Professionnel
+                    </p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="window.print()" class="px-5 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-200 transition flex items-center gap-2 border border-slate-200">
-                    <i class="fa-solid fa-print"></i> Imprimer
+            <div class="flex items-center gap-3 no-print">
+                <!-- Action PDF Directe -->
+                <button onclick="downloadExpertisePDF()" class="px-6 py-2.5 bg-slate-800 text-white rounded-2xl text-sm font-medium hover:bg-slate-900 transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
+                    <i class="fa-solid fa-file-pdf"></i> Télécharger le PDF
                 </button>
             </div>
         </header>
@@ -71,198 +111,405 @@
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <!-- Parameters Sidebar (Saisie) -->
-            <div class="lg:col-span-4 bg-white p-8 rounded-2xl pro-shadow border border-slate-100 space-y-6">
-                <div class="border-b border-slate-100 pb-4">
-                    <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider text-sm">Données du Dossier</h2>
-                    <p class="text-slate-400 text-xs mt-1">Saisissez les paramètres pour mettre à jour l'expertise.</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Valeur Neuve (DHS)</label>
-                        <input type="text" id="v_valeur_display" placeholder="0,00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none font-bold text-lg text-right font-mono-num" oninput="formatInput(this); updateVrade();">
-                        <input type="hidden" id="v_valeur_raw" value="">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
+            <div class="lg:col-span-4 space-y-6 no-print">
+                <div class="bg-white p-8 rounded-[2rem] pro-shadow border border-slate-100 space-y-6">
+                    <h2 class="text-xs font-medium text-slate-400 uppercase tracking-[0.2em] mb-4 text-center border-b pb-2">Données du Dossier</h2>
+                    
+                    <div class="space-y-4">
+                        
+                        <!-- Reference Dossier Input -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Date MEC</label>
-                            <input type="date" id="v_dmec" value="2020-05-12" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm" onchange="updateVrade()">
+                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Référence Dossier</label>
+                            <input type="text" id="v_ref" placeholder="Ex: 26/001/A" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal text-slate-900">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Date Sinistre</label>
-                            <input type="date" id="v_sinistre" value="2026-02-01" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm" onchange="updateVrade()">
-                        </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Catégorie Fiscale</label>
-                        <select id="v_cat" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm appearance-none" onchange="updateVrade()">
-                            <option value="PP/Non Utilitaire">VH Particulier / Non Utilitaire</option>
-                            <option value="Location/Utilitaire" selected>VH Location / Utilitaire / Société</option>
-                            <option value="Bus et Camions">Bus et Camions</option>
-                            <option value="Engins/Agricole">Engins de chantier et Agricoles</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Puissance (CV)</label>
-                            <input type="number" id="v_pf" value="7" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none font-medium" oninput="updateVrade()">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <label class="block text-[9px] font-medium text-slate-400 uppercase tracking-widest mb-1.5">Valeur à Neuf (Dhs)</label>
+                            <input type="text" id="v_valeur_display" placeholder="Saisir montant..." class="w-full bg-transparent border-none focus:ring-0 p-0 font-normal text-lg text-left font-mono-num text-slate-900" 
+                                   oninput="updateVrade();" 
+                                   onblur="finalizeFormat(this, 'v_valeur_raw')"
+                                   onkeydown="handleEnter(event, this)">
+                            <input type="hidden" id="v_valeur_raw" value="0">
                         </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Date MEC</label>
+                                <input type="date" id="v_dmec" value="2016-11-07" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal" onchange="updateVrade()">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Date Sinistre</label>
+                                <input type="date" id="v_sinistre" value="2026-02-01" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal" onchange="updateVrade()">
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50">
+                            <label class="block text-[9px] font-medium text-indigo-400 uppercase tracking-widest mb-1.5">Montant du Devis (Dhs)</label>
+                            <input type="text" id="v_devis_display" placeholder="Saisir montant..." class="w-full bg-transparent border-none focus:ring-0 p-0 font-normal text-lg text-left font-mono-num text-indigo-900" 
+                                   oninput="updateVrade();" 
+                                   onblur="finalizeFormat(this, 'v_devis_raw')"
+                                   onkeydown="handleEnter(event, this)">
+                            <input type="hidden" id="v_devis_raw" value="0">
+                        </div>
+
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Carburant</label>
-                            <select id="v_carb" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm" onchange="updateVrade()">
-                                <option value="Diesel" selected>Diesel</option>
-                                <option value="Essence">Essence</option>
+                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Catégorie</label>
+                            <select id="v_cat" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal appearance-none cursor-pointer" onchange="updateVrade()">
+                                <optgroup label="Véhicules Légers">
+                                    <option value="PP/Non Utilitaire">VH Particulier / Non Utilitaire</option>
+                                    <option value="Location/Utilitaire">VH Location / Utilitaire</option>
+                                </optgroup>
+                                <optgroup label="Poids Lourds & Chantier">
+                                    <option value="Semi-Remorque" selected>Semi-Remorque (Tracteur)</option>
+                                    <option value="Bus et Camions">Bus et Camions</option>
+                                    <option value="Engins/Agricole">Engins de Chantier / Agricole</option>
+                                </optgroup>
+                                <optgroup label="Autres">
+                                    <option value="Motocycle">Motocycle</option>
+                                </optgroup>
                             </select>
                         </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Puissance (CV)</label>
+                                <input type="number" id="v_pf" value="6" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none font-normal text-sm" oninput="updateVrade()">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Carburant</label>
+                                <select id="v_carb" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal cursor-pointer" onchange="updateVrade()">
+                                    <option value="Diesel" selected>Diesel</option>
+                                    <option value="Essence">Essence</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- New Fields from CSV Logic -->
+                        <div class="pt-4 border-t border-slate-100">
+                             <h3 class="text-[10px] font-medium text-indigo-400 uppercase tracking-widest mb-3">Facteurs Correctifs</h3>
+                             <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">KM Compteur</label>
+                                    <input type="number" id="v_km_compteur" value="0" placeholder="Ex: 150000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none font-mono-num text-sm" oninput="updateVrade()">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Entretien</label>
+                                    <select id="v_entretien" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal cursor-pointer" onchange="updateVrade()">
+                                        <option value="0">Standard (0%)</option>
+                                        <option value="10">Suivi Concessionnaire (+10%)</option>
+                                        <option value="5">Bon État (+5%)</option>
+                                        <option value="-5">Moyen (-5%)</option>
+                                        <option value="-10">Mauvais / À revoir (-10%)</option>
+                                    </select>
+                                </div>
+                             </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div id="v_warning" class="hidden p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs flex items-start gap-2">
-                    <i class="fa-solid fa-circle-exclamation text-base"></i>
-                    <span>La Puissance Fiscale (PF) doit être ≥ 12 CV pour les Camions/Bus selon la réglementation.</span>
+
+                <div class="p-5 bg-blue-900 text-white rounded-[2rem] shadow-lg border border-blue-800">
+                    <h4 class="text-xs font-medium uppercase tracking-widest mb-2 opacity-60">Règle de Réforme</h4>
+                    <p class="text-xs leading-relaxed font-normal">
+                        Un véhicule est déclaré en <span class="font-medium underline">Réforme Économique</span> si le montant des réparations excède les <span class="font-medium">2/3 (66.67%)</span> de sa valeur vénale.
+                    </p>
                 </div>
             </div>
 
-            <!-- Results Dashboard (Analyse et Graphiques) -->
-            <div class="lg:col-span-8 flex flex-col gap-6">
+            <!-- Results Dashboard -->
+            <div class="lg:col-span-8 flex flex-col gap-8">
                 
-                <!-- KPI Cards -->
-                <div class="bg-slate-900 p-8 rounded-2xl text-white pro-shadow flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                        <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest">Valeur Vénale Résiduelle Estimée</p>
-                        <h3 class="text-4xl font-extrabold mt-1 font-mono-num" id="kpi-vv-final">0,00 DHS</h3>
+                <!-- Décision Technique Card -->
+                <div id="decision-box" class="decision-card bg-white p-8 rounded-[2.5rem] pro-shadow border-t-8 border-slate-200 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                    <div class="flex items-center gap-6">
+                        <div id="decision-icon-bg" class="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-3xl text-slate-400 shadow-inner">
+                            <i id="decision-icon" class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em] mb-1">Arbitrage Technique</p>
+                            <h2 id="decision-label" class="text-2xl md:text-3xl font-medium text-slate-900 leading-tight">En attente de saisie</h2>
+                        </div>
                     </div>
-                    <div class="text-right border-l border-slate-700 pl-6 hidden md:block">
-                        <p class="text-slate-400 text-xs font-bold uppercase">Abattement de vétusté total</p>
-                        <p class="text-xl font-bold text-rose-400 font-mono-num" id="kpi-dep-total">0,00 DHS</p>
+                    <div class="text-center md:text-right border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-8">
+                        <p class="text-slate-400 text-[10px] font-medium uppercase tracking-widest mb-1">Seuil de Réforme (2/3)</p>
+                        <p id="kpi-seuil" class="text-xl font-medium font-mono-num text-slate-700">0,00 Dhs</p>
                     </div>
                 </div>
 
-                <!-- Visualizations -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
-                    <div class="bg-white p-6 rounded-2xl pro-shadow border border-slate-100 flex flex-col">
-                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-4 text-center">Évolution de la Perte de Valeur</h4>
-                        <div class="chart-container">
-                            <canvas id="chartEvo"></canvas>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-4 text-center italic">Courbe dégressive basée sur les tranches annuelles officielles.</p>
+                <!-- KPIs Principaux -->
+                <div class="bg-slate-900 p-10 rounded-[2.5rem] text-white pro-shadow flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                        <svg viewBox="0 0 100 100" class="w-full h-full"><path d="M0 100 L100 0 L100 100 Z" fill="white"/></svg>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl pro-shadow border border-slate-100 flex flex-col">
-                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-4 text-center">Répartition Valeur / Vétusté</h4>
-                        <div class="chart-container">
-                            <canvas id="chartDist"></canvas>
+                    <div class="relative z-10 text-center md:text-left flex-1">
+                        <p class="text-indigo-400 text-[10px] font-medium uppercase tracking-[0.3em] mb-2">Valeur Vénale Corrigée</p>
+                        <h3 class="text-4xl font-medium mt-1 font-mono-num tracking-tight" id="kpi-vv-final">0,00 Dhs</h3>
+                        <p class="text-slate-400 text-[10px] mt-2 font-normal">Incluant correctifs KM & Entretien</p>
+                    </div>
+                    <div class="text-right border-l border-white/10 pl-10 hidden md:block relative z-10">
+                        <div class="mb-4">
+                            <p class="text-white/40 text-[10px] font-medium uppercase tracking-[0.2em] mb-1">Valeur Base (Temps)</p>
+                            <p class="text-lg font-medium text-white/80 font-mono-num" id="kpi-val-base">0,00 Dhs</p>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-4 text-center italic">Proportion résiduelle au jour du sinistre.</p>
+                        <div>
+                            <p class="text-white/40 text-[10px] font-medium uppercase tracking-[0.2em] mb-1">Impact Correctifs</p>
+                            <p class="text-lg font-medium text-emerald-400 font-mono-num" id="kpi-impact-total">+0,00 Dhs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-grow">
+                    <div class="bg-white p-8 rounded-[2.5rem] pro-shadow border border-slate-50 flex flex-col">
+                        <h4 class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">Courbe de Vétusté</h4>
+                        <div class="chart-container"><canvas id="chartEvo"></canvas></div>
+                    </div>
+                    <div class="bg-white p-8 rounded-[2.5rem] pro-shadow border border-slate-50 flex flex-col">
+                        <h4 class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">Composition Valeur</h4>
+                        <div class="chart-container"><canvas id="chartDist"></canvas></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Audit Table (Détail Textuel et Numérique) -->
-        <section class="bg-white rounded-2xl pro-shadow border border-slate-100 overflow-hidden">
-            <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+        <!-- Audit Table -->
+        <section class="bg-white rounded-[2.5rem] pro-shadow border border-slate-50 overflow-hidden no-print">
+            <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Tableau d'Audit Prorata Temporis</h3>
-                    <p class="text-sm text-slate-500 mt-1">Détail des calculs par période d'anniversaire MEC.</p>
+                    <h3 class="text-xl font-medium text-slate-900 tracking-tight mb-1">Audit Prorata Temporis</h3>
+                    <p class="text-sm text-slate-500 font-medium">Certification établie par le Cabinet BETCAM.</p>
                 </div>
-                <div class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-100" id="kpi-anciennete">
-                    0 ans, 0 jours
+                <div class="seniority-badge px-6 py-3.5 text-white rounded-2xl flex items-center gap-4 border border-emerald-400/30 shadow-lg shadow-emerald-100/50" id="kpi-anciennete-container">
+                    <i class="fa-solid fa-calendar-check text-xl opacity-60"></i>
+                    <div class="flex flex-col">
+                        <span class="text-[9px] font-medium text-emerald-100 tracking-widest uppercase">ANCIENNETÉ</span>
+                        <span class="text-xl font-medium tracking-tight leading-none" id="kpi-anciennete">0 ans, 0 jrs</span>
+                    </div>
                 </div>
             </div>
             
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse font-mono-num text-sm">
                     <thead>
-                        <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50/80">
-                            <th class="p-4 border-b">Année</th>
-                            <th class="p-4 border-b">Période Effective</th>
-                            <th class="p-4 border-b text-center">Taux</th>
-                            <th class="p-4 border-b text-right">Val. Début (DHS)</th>
-                            <th class="p-4 border-b text-right">Perte (DHS)</th>
-                            <th class="p-4 border-b text-right">Val. Fin (DHS)</th>
-                            <th class="p-4 border-b text-center">Jours</th>
+                        <tr class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.15em] bg-slate-50/50">
+                            <th class="p-6 border-b border-slate-100">Année</th>
+                            <th class="p-6 border-b border-slate-100">Période d'application</th>
+                            <th class="p-6 border-b border-slate-100 text-center">Taux (%)</th>
+                            <th class="p-6 border-b border-slate-100 text-right">Val. Début (Dhs)</th>
+                            <th class="p-6 border-b border-slate-100 text-right">Dépréciation (Dhs)</th>
+                            <th class="p-6 border-b border-slate-100 text-right font-medium text-slate-900">Val. Fin (Dhs)</th>
+                            <th class="p-6 border-b border-slate-100 text-center">Jours</th>
                         </tr>
                     </thead>
-                    <tbody id="vradeTable" class="divide-y divide-slate-50">
-                        <!-- Lignes injectées par JS -->
-                    </tbody>
+                    <tbody id="vradeTable" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
         </section>
 
-        <footer class="text-center text-slate-400 text-xs pb-12">
-            <p>© 2026 Système Expert VRADE Solo.</p>
-            <p class="mt-1 opacity-60">Matrice de dépréciation appliquée : 20%/20%/15%/10%...5%. Calcul inclusive +1 jour.</p>
+        <footer class="text-center text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em] pb-12 opacity-60 no-print">
+            <p>© 2026 Cabinet D'expertise BETCAM - Document certifié conforme.</p>
         </footer>
     </div>
 
-    <!-- Script Area -->
-    <script>
-        // --- CONFIGURATION & STATE ---
-        let globalData = {};
-        let chartEvo, chartDist;
+    <!-- ========================================== -->
+    <!-- TEMPLATE CACHÉ POUR L'EXPORT PDF           -->
+    <!-- ========================================== -->
+    <div id="pdf-export-template">
+        <div style="border: 2px solid #333; padding: 30px; border-radius: 15px;">
+            <!-- Header PDF -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #4f46e5; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <h1 style="margin:0; color:#1e293b; font-size: 24px; font-weight: 500;">Cabinet D'expertise <span style="color:#4f46e5;">BETCAM</span></h1>
+                    <p style="margin:5px 0 0; color:#64748b; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Rapport d'Expertise & d'Arbitrage Économique</p>
+                </div>
+                <div style="text-align: right; color: #64748b; font-size: 10px;">
+                    Établi le : <span id="pdf-date-now" style="font-weight: 500;">--/--/----</span><br>
+                    Réf : <span id="pdf-ref-display">VRADE-AUTOGEN</span>
+                </div>
+            </div>
 
+            <!-- Infos Dossier -->
+            <div style="margin-bottom: 30px;">
+                <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #4f46e5; margin-bottom: 15px;">1. Informations du Dossier</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Valeur à Neuf :</td>
+                        <td id="pdf-val-neuve" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">0,00 Dhs</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Mise en circulation :</td>
+                        <td id="pdf-dmec" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">--/--/----</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Kilométrage :</td>
+                        <td id="pdf-km" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">0 km</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Date du Sinistre :</td>
+                        <td id="pdf-sinistre" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">--/--/----</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Résultats & Arbitrage -->
+            <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+                
+                <!-- Détail Calcul -->
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px;">
+                    <tr>
+                        <td style="padding: 5px; color: #64748b;">Valeur Base (Dépréciation Temps) :</td>
+                        <td id="pdf-val-base" style="padding: 5px; text-align: right; font-weight: bold; color: #334155;">0,00 Dhs</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; color: #64748b;">Ajustement Kilométrique (λ) :</td>
+                        <td id="pdf-adj-km" style="padding: 5px; text-align: right; font-weight: bold; color: #059669;">+0,00 Dhs</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; color: #64748b;">Ajustement Entretien (β) :</td>
+                        <td id="pdf-adj-entretien" style="padding: 5px; text-align: right; font-weight: bold; color: #059669;">+0,00 Dhs</td>
+                    </tr>
+                    <tr style="border-top: 1px solid #cbd5e1;">
+                        <td style="padding: 8px; font-weight: 800; color: #1e293b; text-transform: uppercase;">Valeur Vénale Finale</td>
+                        <td id="pdf-vv-final" style="padding: 8px; text-align: right; font-weight: 900; font-size: 16px; color: #4f46e5;">0,00 Dhs</td>
+                    </tr>
+                </table>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #cbd5e1; padding-top: 15px;">
+                     <div style="text-align: left;">
+                         <p style="font-size: 10px; font-weight: 500; color: #64748b; margin: 0; text-transform: uppercase;">Montant Devis</p>
+                         <p id="pdf-devis" style="font-size: 14px; font-weight: bold; margin: 0; color: #1e293b;">0,00 Dhs</p>
+                     </div>
+                     <div style="text-align: right;">
+                        <p style="font-size: 10px; font-weight: 500; color: #64748b; margin: 0; text-transform: uppercase;">Seuil Réforme (2/3)</p>
+                        <p id="pdf-seuil" style="font-size: 14px; font-weight: bold; margin: 0; color: #64748b;">0,00 Dhs</p>
+                    </div>
+                </div>
+
+                <div id="pdf-decision-box" style="text-align: center; padding: 10px; margin-top: 15px; border-radius: 8px; font-weight: 700; font-size: 14px;">
+                    -- DÉCISION --
+                </div>
+            </div>
+
+            <!-- Tableau Audit PDF -->
+            <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #4f46e5; margin-bottom: 15px;">2. Détail de l'Audit Prorata Temporis</h2>
+            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+                <thead>
+                    <tr style="background: #f1f5f9; color: #475569;">
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;">Année</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;">Période</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;">Taux</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: right;">Dépréciation</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: right;">Valeur Fin</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-table-body">
+                    <!-- Rempli par script -->
+                </tbody>
+            </table>
+
+            <div style="margin-top: 40px; text-align: center; font-size: 9px; color: #94a3b8;">
+                Ce document est généré informatiquement et certifié par l'algorithme du Cabinet BETCAM.<br>
+                © 2026 Cabinet D'expertise BETCAM.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        // --- MATRICE DE CALCUL ---
         const MATRICE = [
+            // 1. PP / Non Utilitaire
             { cat: "PP/Non Utilitaire", pMin: 0, pMax: 7, carb: "Diesel", ans: [0.20, 0.15, 0.10, 0.10, 0.10] },
             { cat: "PP/Non Utilitaire", pMin: 0, pMax: 7, carb: "Essence", ans: [0.20, 0.15, 0.10, 0.10, 0.10] },
             { cat: "PP/Non Utilitaire", pMin: 8, pMax: 11, carb: "Diesel", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
             { cat: "PP/Non Utilitaire", pMin: 8, pMax: 11, carb: "Essence", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
-            { cat: "PP/Non Utilitaire", pMin: 12, pMax: 99, carb: "Diesel", ans: [0.27, 0.20, 0.15, 0.10, 0.10] },
-            { cat: "PP/Non Utilitaire", pMin: 12, pMax: 99, carb: "Essence", ans: [0.30, 0.25, 0.20, 0.10, 0.10] },
+            { cat: "PP/Non Utilitaire", pMin: 12, pMax: 999, carb: "Diesel", ans: [0.27, 0.20, 0.15, 0.10, 0.10] },
+            { cat: "PP/Non Utilitaire", pMin: 12, pMax: 999, carb: "Essence", ans: [0.30, 0.25, 0.20, 0.10, 0.10] },
+
+            // 2. Location / Utilitaire
             { cat: "Location/Utilitaire", pMin: 0, pMax: 7, carb: "Diesel", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
             { cat: "Location/Utilitaire", pMin: 0, pMax: 7, carb: "Essence", ans: [0.25, 0.20, 0.15, 0.10, 0.10] },
             { cat: "Location/Utilitaire", pMin: 8, pMax: 11, carb: "Diesel", ans: [0.30, 0.25, 0.20, 0.15, 0.10] },
             { cat: "Location/Utilitaire", pMin: 8, pMax: 11, carb: "Essence", ans: [0.30, 0.25, 0.20, 0.15, 0.10] },
-            { cat: "Location/Utilitaire", pMin: 12, pMax: 99, carb: "Diesel", ans: [0.32, 0.25, 0.20, 0.15, 0.10] },
-            { cat: "Location/Utilitaire", pMin: 12, pMax: 99, carb: "Essence", ans: [0.32, 0.25, 0.20, 0.15, 0.10] },
-            { cat: "Bus et Camions", pMin: 12, pMax: 999, carb: "Diesel", ans: [0.30, 0.25, 0.20, 0.15, 0.10] },
-            { cat: "Bus et Camions", pMin: 12, pMax: 999, carb: "Essence", ans: [0.40, 0.35, 0.30, 0.25, 0.20] }
+            { cat: "Location/Utilitaire", pMin: 12, pMax: 999, carb: "Diesel", ans: [0.32, 0.25, 0.20, 0.15, 0.10] },
+            { cat: "Location/Utilitaire", pMin: 12, pMax: 999, carb: "Essence", ans: [0.32, 0.25, 0.20, 0.15, 0.10] },
+
+            // 3. Bus et Camions
+            { cat: "Bus et Camions", pMin: 0, pMax: 999, carb: "Diesel", ans: [0.35, 0.30, 0.25, 0.20, 0.15] },
+            { cat: "Bus et Camions", pMin: 0, pMax: 999, carb: "Essence", ans: [0.40, 0.35, 0.30, 0.25, 0.20] },
+
+            // 4. Semi-Remorque
+            { cat: "Semi-Remorque", pMin: 0, pMax: 999, carb: "Diesel", ans: [0.35, 0.30, 0.25, 0.20, 0.15] },
+            { cat: "Semi-Remorque", pMin: 0, pMax: 999, carb: "Essence", ans: [0.40, 0.35, 0.30, 0.25, 0.20] },
+
+            // 5. Motocycle
+            { cat: "Motocycle", pMin: 0, pMax: 999, carb: "Essence", ans: [0.20, 0.15, 0.10, 0.10, 0.10] },
+            
+            // 6. Engins
+            { cat: "Engins/Agricole", pMin: 0, pMax: 999, carb: "Diesel", ans: [0, 0, 0, 0, 0] },
+            { cat: "Engins/Agricole", pMin: 0, pMax: 999, carb: "Essence", ans: [0, 0, 0, 0, 0] }
         ];
 
-        // --- UTILS ---
-        function formatDHS(num, withPrefix = true) {
-            const f = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num).replace(/,/g, " ").replace(/\s(?=\d{2}$)/, ",");
-            return withPrefix ? f + " DHS" : f;
+        let chartEvo, chartDist;
+        let tableDataForPDF = [];
+        let finalCalculation = {};
+
+        function formatFinance(num, withSuffix = true) {
+            let formatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num).replace(/\u00a0/g, " ");
+            return withSuffix ? formatted + " Dhs" : formatted;
         }
 
-        function formatInput(el) {
-            let val = el.value.replace(/[^\d]/g, "");
-            if(!val) return;
-            let numeric = parseFloat(val) / 100;
-            document.getElementById('v_valeur_raw').value = numeric;
-            el.value = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(numeric);
+        function handleEnter(e, el) {
+            if (e.key === "Enter") { updateVrade(); el.blur(); }
         }
 
-        // --- CORE CALCULATION ---
+        function finalizeFormat(el, rawId) {
+            let cleanVal = el.value.replace(/\s/g, '').replace(',', '.');
+            let numeric = parseFloat(cleanVal) || 0;
+            document.getElementById(rawId).value = numeric;
+            el.value = formatFinance(numeric, false);
+            updateVrade();
+        }
+
         function getTaux(annee, cat, p, carb) {
             if (cat === "Engins/Agricole") return 0;
             if (annee >= 11) return 0.05;
-            const line = MATRICE.find(l => l.cat === cat && p >= l.pMin && p <= l.pMax && l.carb === carb);
-            if (!line) return 0.10;
-            return line.ans[Math.min(annee - 1, 4)];
+
+            let line = MATRICE.find(l => l.cat === cat && p >= l.pMin && p <= l.pMax && l.carb === carb);
+            if (!line) { line = MATRICE.find(l => l.cat === cat && p >= l.pMin && p <= l.pMax); }
+            return line ? line.ans[Math.min(annee - 1, 4)] : 0.10;
+        }
+
+        function getReferenceKmPerYear(cat, carb) {
+            // Logique Standard FMSAR (Maroc)
+            if (cat === "Motocycle") return 5000;
+            if (cat === "Engins/Agricole") return 1500; // Heures ? Non, simplifions en KM standard
+            if (cat === "Bus et Camions" || cat === "Semi-Remorque") return 50000;
+            
+            // Véhicules Légers
+            if (carb === "Diesel") return 25000;
+            return 20000; // Essence
         }
 
         function updateVrade() {
-            const valNeuve = parseFloat(document.getElementById('v_valeur_raw').value) || 0;
+            let valNeuve = parseFloat(document.getElementById('v_valeur_display').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            let montantDevis = parseFloat(document.getElementById('v_devis_display').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            let kmCompteur = parseFloat(document.getElementById('v_km_compteur').value) || 0;
+            let entretienPercent = parseFloat(document.getElementById('v_entretien').value) || 0;
+
+            document.getElementById('v_valeur_raw').value = valNeuve;
+            document.getElementById('v_devis_raw').value = montantDevis;
+
             const dmecInput = document.getElementById('v_dmec').value;
             const sinistreInput = document.getElementById('v_sinistre').value;
             const cat = document.getElementById('v_cat').value;
             const pf = parseInt(document.getElementById('v_pf').value) || 0;
             const carb = document.getElementById('v_carb').value;
 
-            if(!dmecInput || !sinistreInput) return;
-            
+            if(!dmecInput || !sinistreInput || valNeuve <= 0) return;
+
             const dmec = new Date(dmecInput);
             const sinistre = new Date(sinistreInput);
-
-            const warning = document.getElementById('v_warning');
-            if(cat === "Bus et Camions" && pf < 12) warning.classList.remove('hidden'); else warning.classList.add('hidden');
-
-            if(valNeuve <= 0 || isNaN(dmec.getTime()) || isNaN(sinistre.getTime()) || sinistre < dmec) return;
-
             const tableRows = [];
             const labels = ["Neuf"];
             const plotData = [valNeuve];
@@ -271,57 +518,102 @@
             let dAnniv = new Date(dmec);
             let annee = 1;
 
+            // 1. Calcul Dépréciation Temporelle
             while(true) {
                 let dStart = new Date(dAnniv);
                 let dNext = new Date(dStart);
                 dNext.setFullYear(dStart.getFullYear() + 1);
-                
-                let isLast = dNext > sinistre;
-                let dEndEff = isLast ? new Date(sinistre) : new Date(dNext.getTime() - 86400000);
-                
-                const diff = Math.abs(dEndEff.getTime() - dStart.getTime());
-                const jours = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
-                
+                let dEndEff = dNext > sinistre ? new Date(sinistre) : new Date(dNext.getTime() - 86400000);
+                const jours = Math.ceil(Math.abs(dEndEff - dStart) / 86400000) + 1;
                 const t = getTaux(annee, cat, pf, carb);
-                const perte = isLast ? (valAct * t * (jours / 365)) : (valAct * t);
+                const perte = dNext > sinistre ? (valAct * t * (jours / 365)) : (valAct * t);
                 const valFin = valAct - perte;
 
                 tableRows.push({ annee, start: dStart, end: dEndEff, t, valDeb: valAct, perte, valFin, jours });
                 labels.push("An " + annee);
                 plotData.push(valFin);
 
-                if(isLast) break;
+                if(dNext > sinistre) break;
                 valAct = valFin;
                 dAnniv = dNext;
                 annee++;
-                if(annee > 50) break;
             }
 
-            const lastResult = tableRows[tableRows.length - 1];
+            const valBase = tableRows[tableRows.length - 1].valFin;
+            const ageAnnees = (sinistre - dmec) / (1000 * 60 * 60 * 24 * 365.25);
             
-            globalData = {
-                valNeuve, dmec, sinistre, cat, pf, carb,
-                vv: lastResult.valFin,
-                anciennete: `${annee - 1} ans et ${lastResult.jours} jours`
+            // 2. Calcul Correctifs
+            // A. Kilométrage
+            const refKmAn = getReferenceKmPerYear(cat, carb);
+            const kmTheorique = refKmAn * ageAnnees;
+            // Formule Expert: (KmRéel - KmThéo) / KmThéo / 2
+            let ratioKm = 0;
+            if(kmTheorique > 0) {
+                ratioKm = ((kmCompteur - kmTheorique) / kmTheorique) / 2;
+            }
+            // Plafonnement +/- 20%
+            if(ratioKm > 0.20) ratioKm = 0.20;
+            if(ratioKm < -0.20) ratioKm = -0.20;
+            
+            // Note: Si KM Réel > Théo, ratio positif => on doit REDUIRE la valeur.
+            // Donc la correction est inversée: Valeur * (1 - ratio)
+            const montantAdjKm = valBase * (-ratioKm);
+
+            // B. Entretien
+            const montantAdjEntretien = valBase * (entretienPercent / 100);
+
+            // 3. Valeur Finale
+            const valFinale = valBase + montantAdjKm + montantAdjEntretien;
+            const seuilReform = (valFinale * 2) / 3;
+
+            // Stockage pour PDF
+            tableDataForPDF = tableRows;
+            finalCalculation = {
+                valBase: valBase,
+                adjKm: montantAdjKm,
+                adjEntretien: montantAdjEntretien,
+                valFinale: valFinale,
+                seuil: seuilReform,
+                km: kmCompteur
             };
 
-            document.getElementById('kpi-vv-final').innerText = formatDHS(lastResult.valFin);
-            document.getElementById('kpi-dep-total').innerText = formatDHS(valNeuve - lastResult.valFin);
-            document.getElementById('kpi-anciennete').innerText = globalData.anciennete;
+            // 4. Affichage
+            document.getElementById('kpi-vv-final').innerText = formatFinance(valFinale);
+            document.getElementById('kpi-val-base').innerText = formatFinance(valBase);
+            const totalImpact = montantAdjKm + montantAdjEntretien;
+            const impactEl = document.getElementById('kpi-impact-total');
+            impactEl.innerText = (totalImpact >= 0 ? "+" : "") + formatFinance(totalImpact);
+            impactEl.className = totalImpact >= 0 ? "text-lg font-medium text-emerald-400 font-mono-num" : "text-lg font-medium text-rose-400 font-mono-num";
+
+            // CORRECTION: Suppression de la ligne qui causait l'erreur
+            // document.getElementById('kpi-dep-total').innerText a été retiré car l'élément n'existe plus dans cette vue.
+            
+            document.getElementById('kpi-anciennete').innerText = `${annee-1} ans, ${tableRows[tableRows.length-1].jours} jrs`;
+            document.getElementById('kpi-seuil').innerText = formatFinance(seuilReform);
+
+            const decisionBox = document.getElementById('decision-box');
+            const decisionLabel = document.getElementById('decision-label');
+            const isReform = montantDevis > seuilReform;
+
+            if (montantDevis > 0) {
+                decisionBox.className = isReform ? "decision-card bg-rose-50 p-8 rounded-[2.5rem] pro-shadow border-t-8 border-rose-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden" : "decision-card bg-emerald-50 p-8 rounded-[2.5rem] pro-shadow border-t-8 border-emerald-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden";
+                decisionLabel.innerText = isReform ? "RÉFORME ÉCONOMIQUE" : "RÉPARATION DU VHL";
+                decisionLabel.className = isReform ? "text-2xl md:text-3xl font-medium text-rose-700" : "text-2xl md:text-3xl font-medium text-emerald-700";
+            }
 
             document.getElementById('vradeTable').innerHTML = tableRows.map(r => `
-                <tr class="hover:bg-indigo-50/30 transition">
-                    <td class="p-4 font-bold text-indigo-600">${r.annee}</td>
-                    <td class="p-4 text-xs text-slate-500">${r.start.toLocaleDateString('fr-FR')} au ${r.end.toLocaleDateString('fr-FR')}</td>
-                    <td class="p-4 text-center font-bold text-slate-700">${(r.t*100).toFixed(0)}%</td>
-                    <td class="p-4 text-right">${formatDHS(r.valDeb, false)}</td>
-                    <td class="p-4 text-right text-rose-500 font-semibold">-${formatDHS(r.perte, false)}</td>
-                    <td class="p-4 text-right font-extrabold text-slate-900">${formatDHS(r.valFin, false)}</td>
-                    <td class="p-4 text-center text-slate-400 font-bold">${r.jours}</td>
+                <tr class="hover:bg-indigo-50/20 transition-colors">
+                    <td class="p-6 text-slate-500 font-medium">Année ${r.annee}</td>
+                    <td class="p-6 text-sm text-slate-900 font-normal">${r.start.toLocaleDateString('fr-FR')} au ${r.end.toLocaleDateString('fr-FR')}</td>
+                    <td class="p-6 text-center text-slate-600 font-medium">${(r.t*100).toFixed(0)}%</td>
+                    <td class="p-6 text-right text-slate-600">${formatFinance(r.valDeb, false)}</td>
+                    <td class="p-6 text-right text-rose-400 font-medium">-${formatFinance(r.perte, false)}</td>
+                    <td class="p-6 text-right text-slate-800 font-medium">${formatFinance(r.valFin, false)}</td>
+                    <td class="p-6 text-center text-slate-400 font-medium">${r.jours}</td>
                 </tr>
             `).join('');
 
-            updateCharts(labels, plotData, lastResult.valFin, valNeuve - lastResult.valFin);
+            updateCharts(labels, plotData, valFinale, valNeuve - valFinale);
         }
 
         function updateCharts(labels, values, finalVal, lossVal) {
@@ -332,18 +624,105 @@
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{ label: 'Valeur résiduelle', data: values, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#fff' }]
+                    datasets: [{ label: 'Valeur résiduelle', data: values, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.05)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderWidth: 3 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatFinance(v, false) } } } }
             });
             const ctx2 = document.getElementById('chartDist').getContext('2d');
+            const gradGreen = ctx2.createLinearGradient(0, 0, 0, 400);
+            gradGreen.addColorStop(0, '#10b981'); gradGreen.addColorStop(1, '#065f46'); 
+            const gradRed = ctx2.createLinearGradient(0, 0, 0, 400);
+            gradRed.addColorStop(0, '#f43f5e'); gradRed.addColorStop(1, '#9f1239'); 
             chartDist = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
                     labels: ['Valeur Restante', 'Dépréciation'],
-                    datasets: [{ data: [finalVal, lossVal], backgroundColor: ['#10b981', '#f43f5e'] }]
+                    datasets: [{ data: [finalVal, lossVal], backgroundColor: [gradGreen, gradRed], borderWidth: 0, hoverOffset: 15, borderRadius: 0 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 30, font: {size: 11, weight: '500'} } },
+                        datalabels: {
+                            color: '#ffffff', font: { weight: '500', size: 12, family: 'Inter' },
+                            textShadowColor: 'rgba(0,0,0,0.7)', textShadowBlur: 8,
+                            formatter: (value, ctx) => {
+                                let sum = 0;
+                                ctx.chart.data.datasets[0].data.map(data => { sum += data; });
+                                return (value * 100 / sum).toFixed(1) + "%";
+                            },
+                            anchor: 'center', align: 'center', display: (context) => context.dataset.data[context.dataIndex] > 0
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- GÉNÉRATION DU PDF VIA TEMPLATE ---
+        function downloadExpertisePDF() {
+            const valNeuve = document.getElementById('v_valeur_raw').value;
+            if(parseFloat(valNeuve) <= 0) {
+                alert("Veuillez d'abord effectuer un calcul complet.");
+                return;
+            }
+
+            // Remplissage du template
+            const refDossier = document.getElementById('v_ref').value;
+            document.getElementById('pdf-ref-display').innerText = refDossier ? refDossier : "VRADE-AUTOGEN";
+            
+            document.getElementById('pdf-date-now').innerText = new Date().toLocaleDateString('fr-FR');
+            document.getElementById('pdf-val-neuve').innerText = formatFinance(parseFloat(document.getElementById('v_valeur_raw').value));
+            document.getElementById('pdf-dmec').innerText = document.getElementById('v_dmec').value;
+            document.getElementById('pdf-km').innerText = finalCalculation.km + " km";
+            document.getElementById('pdf-sinistre').innerText = document.getElementById('v_sinistre').value;
+            document.getElementById('pdf-devis').innerText = formatFinance(parseFloat(document.getElementById('v_devis_raw').value));
+            
+            // Détail Calculs PDF
+            document.getElementById('pdf-val-base').innerText = formatFinance(finalCalculation.valBase);
+            
+            const adjKmEl = document.getElementById('pdf-adj-km');
+            adjKmEl.innerText = (finalCalculation.adjKm >= 0 ? "+" : "") + formatFinance(finalCalculation.adjKm);
+            adjKmEl.style.color = finalCalculation.adjKm >= 0 ? "#059669" : "#dc2626";
+
+            const adjEntEl = document.getElementById('pdf-adj-entretien');
+            adjEntEl.innerText = (finalCalculation.adjEntretien >= 0 ? "+" : "") + formatFinance(finalCalculation.adjEntretien);
+            adjEntEl.style.color = finalCalculation.adjEntretien >= 0 ? "#059669" : "#dc2626";
+
+            document.getElementById('pdf-vv-final').innerText = formatFinance(finalCalculation.valFinale);
+            document.getElementById('pdf-seuil').innerText = formatFinance(finalCalculation.seuil);
+            
+            const decBox = document.getElementById('pdf-decision-box');
+            const currentDec = document.getElementById('decision-label').innerText;
+            decBox.innerText = currentDec;
+            if(currentDec.includes("RÉFORME")) {
+                decBox.style.background = "#fee2e2"; decBox.style.color = "#b91c1c";
+            } else {
+                decBox.style.background = "#d1fae5"; decBox.style.color = "#047857";
+            }
+
+            document.getElementById('pdf-table-body').innerHTML = tableDataForPDF.map(r => `
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Année ${r.annee}</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0;">${r.start.toLocaleDateString()} au ${r.end.toLocaleDateString()}</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">${(r.t*100).toFixed(0)}%</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right;">-${formatFinance(r.perte, false)}</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right; font-weight: 500;">${formatFinance(r.valFin, false)}</td>
+                </tr>
+            `).join('');
+
+            const element = document.getElementById('pdf-export-template');
+            element.style.display = 'block';
+
+            const opt = {
+                margin: 10,
+                filename: 'Expertise_BETCAM_' + new Date().getTime() + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
             });
         }
 
