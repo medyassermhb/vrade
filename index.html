@@ -67,6 +67,30 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Toggle Checkbox Style */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #68D391;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #68D391;
+        }
+        
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .visible-section {
+            display: block;
+            opacity: 1;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Styles spécifiques au PDF caché */
         #pdf-export-template {
             display: none;
@@ -184,24 +208,30 @@
                             </div>
                         </div>
 
-                        <!-- New Fields from CSV Logic -->
+                        <!-- Toggle Correctifs -->
                         <div class="pt-4 border-t border-slate-100">
-                             <h3 class="text-[10px] font-medium text-indigo-400 uppercase tracking-widest mb-3">Facteurs Correctifs</h3>
-                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">KM Compteur</label>
-                                    <input type="number" id="v_km_compteur" value="0" placeholder="Ex: 150000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none font-mono-num text-sm" oninput="updateVrade()">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Entretien</label>
-                                    <select id="v_entretien" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal cursor-pointer" onchange="updateVrade()">
-                                        <option value="0">Standard (0%)</option>
-                                        <option value="10">Suivi Concessionnaire (+10%)</option>
-                                        <option value="5">Bon État (+5%)</option>
-                                        <option value="-5">Moyen (-5%)</option>
-                                        <option value="-10">Mauvais / À revoir (-10%)</option>
-                                    </select>
-                                </div>
+                             <div class="flex items-center justify-between mb-3">
+                                 <label for="chk_correctives" class="text-[10px] font-medium text-indigo-400 uppercase tracking-widest cursor-pointer select-none">Appliquer Facteurs Correctifs</label>
+                                 <input type="checkbox" id="chk_correctives" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" onchange="toggleCorrectives()">
+                             </div>
+                             
+                             <div id="container_correctifs" class="hidden-section">
+                                 <div class="grid grid-cols-2 gap-4 bg-indigo-50/30 p-3 rounded-xl border border-indigo-100">
+                                    <div>
+                                        <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">KM Compteur</label>
+                                        <input type="number" id="v_km_compteur" value="0" placeholder="Ex: 150000" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none font-mono-num text-sm" oninput="updateVrade()">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Entretien</label>
+                                        <select id="v_entretien" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none text-sm font-normal cursor-pointer" onchange="updateVrade()">
+                                            <option value="0">Standard (0%)</option>
+                                            <option value="10">Suivi Concessionnaire (+10%)</option>
+                                            <option value="5">Bon État (+5%)</option>
+                                            <option value="-5">Moyen (-5%)</option>
+                                            <option value="-10">Mauvais / À revoir (-10%)</option>
+                                        </select>
+                                    </div>
+                                 </div>
                              </div>
                         </div>
                     </div>
@@ -241,9 +271,9 @@
                         <svg viewBox="0 0 100 100" class="w-full h-full"><path d="M0 100 L100 0 L100 100 Z" fill="white"/></svg>
                     </div>
                     <div class="relative z-10 text-center md:text-left flex-1">
-                        <p class="text-indigo-400 text-[10px] font-medium uppercase tracking-[0.3em] mb-2">Valeur Vénale Corrigée</p>
+                        <p class="text-indigo-400 text-[10px] font-medium uppercase tracking-[0.3em] mb-2">Valeur Vénale <span id="label-vv-type">Standard</span></p>
                         <h3 class="text-4xl font-medium mt-1 font-mono-num tracking-tight" id="kpi-vv-final">0,00 Dhs</h3>
-                        <p class="text-slate-400 text-[10px] mt-2 font-normal">Incluant correctifs KM & Entretien</p>
+                        <p class="text-slate-400 text-[10px] mt-2 font-normal" id="label-vv-sub">Calcul sur dépréciation temporelle</p>
                     </div>
                     <div class="text-right border-l border-white/10 pl-10 hidden md:block relative z-10">
                         <div class="mb-4">
@@ -252,7 +282,7 @@
                         </div>
                         <div>
                             <p class="text-white/40 text-[10px] font-medium uppercase tracking-[0.2em] mb-1">Impact Correctifs</p>
-                            <p class="text-lg font-medium text-emerald-400 font-mono-num" id="kpi-impact-total">+0,00 Dhs</p>
+                            <p class="text-lg font-medium text-emerald-400 font-mono-num" id="kpi-impact-total">0,00 Dhs</p>
                         </div>
                     </div>
                 </div>
@@ -359,14 +389,17 @@
                         <td style="padding: 5px; color: #64748b;">Valeur Base (Dépréciation Temps) :</td>
                         <td id="pdf-val-base" style="padding: 5px; text-align: right; font-weight: bold; color: #334155;">0,00 Dhs</td>
                     </tr>
-                    <tr>
+                    
+                    <!-- Lignes conditionnelles affichées seulement si correctifs appliqués -->
+                    <tr id="pdf-row-km" style="display:none;">
                         <td style="padding: 5px; color: #64748b;">Ajustement Kilométrique (λ) :</td>
                         <td id="pdf-adj-km" style="padding: 5px; text-align: right; font-weight: bold; color: #059669;">+0,00 Dhs</td>
                     </tr>
-                    <tr>
+                    <tr id="pdf-row-ent" style="display:none;">
                         <td style="padding: 5px; color: #64748b;">Ajustement Entretien (β) :</td>
                         <td id="pdf-adj-entretien" style="padding: 5px; text-align: right; font-weight: bold; color: #059669;">+0,00 Dhs</td>
                     </tr>
+
                     <tr style="border-top: 1px solid #cbd5e1;">
                         <td style="padding: 8px; font-weight: 800; color: #1e293b; text-transform: uppercase;">Valeur Vénale Finale</td>
                         <td id="pdf-vv-final" style="padding: 8px; text-align: right; font-weight: 900; font-size: 16px; color: #4f46e5;">0,00 Dhs</td>
@@ -481,21 +514,40 @@
         }
 
         function getReferenceKmPerYear(cat, carb) {
-            // Logique Standard FMSAR (Maroc)
             if (cat === "Motocycle") return 5000;
-            if (cat === "Engins/Agricole") return 1500; // Heures ? Non, simplifions en KM standard
+            if (cat === "Engins/Agricole") return 1500; 
             if (cat === "Bus et Camions" || cat === "Semi-Remorque") return 50000;
-            
-            // Véhicules Légers
             if (carb === "Diesel") return 25000;
             return 20000; // Essence
+        }
+
+        function toggleCorrectives() {
+            const container = document.getElementById('container_correctifs');
+            const chk = document.getElementById('chk_correctives');
+            
+            if (chk.checked) {
+                container.classList.remove('hidden-section');
+                container.classList.add('visible-section');
+            } else {
+                container.classList.remove('visible-section');
+                container.classList.add('hidden-section');
+            }
+            updateVrade();
         }
 
         function updateVrade() {
             let valNeuve = parseFloat(document.getElementById('v_valeur_display').value.replace(/\s/g, '').replace(',', '.')) || 0;
             let montantDevis = parseFloat(document.getElementById('v_devis_display').value.replace(/\s/g, '').replace(',', '.')) || 0;
-            let kmCompteur = parseFloat(document.getElementById('v_km_compteur').value) || 0;
-            let entretienPercent = parseFloat(document.getElementById('v_entretien').value) || 0;
+            
+            // Logic Toggle
+            const useCorrectives = document.getElementById('chk_correctives').checked;
+            let kmCompteur = 0;
+            let entretienPercent = 0;
+
+            if (useCorrectives) {
+                kmCompteur = parseFloat(document.getElementById('v_km_compteur').value) || 0;
+                entretienPercent = parseFloat(document.getElementById('v_entretien').value) || 0;
+            }
 
             document.getElementById('v_valeur_raw').value = valNeuve;
             document.getElementById('v_devis_raw').value = montantDevis;
@@ -542,28 +594,29 @@
             const valBase = tableRows[tableRows.length - 1].valFin;
             const ageAnnees = (sinistre - dmec) / (1000 * 60 * 60 * 24 * 365.25);
             
-            // 2. Calcul Correctifs
-            // A. Kilométrage
-            const refKmAn = getReferenceKmPerYear(cat, carb);
-            const kmTheorique = refKmAn * ageAnnees;
-            // Formule Expert: (KmRéel - KmThéo) / KmThéo / 2
-            let ratioKm = 0;
-            if(kmTheorique > 0) {
-                ratioKm = ((kmCompteur - kmTheorique) / kmTheorique) / 2;
+            // 2. Calcul Correctifs (si activés)
+            let montantAdjKm = 0;
+            let montantAdjEntretien = 0;
+
+            if (useCorrectives) {
+                // A. Kilométrage
+                const refKmAn = getReferenceKmPerYear(cat, carb);
+                const kmTheorique = refKmAn * ageAnnees;
+                let ratioKm = 0;
+                if(kmTheorique > 0) {
+                    ratioKm = ((kmCompteur - kmTheorique) / kmTheorique) / 2;
+                }
+                if(ratioKm > 0.20) ratioKm = 0.20;
+                if(ratioKm < -0.20) ratioKm = -0.20;
+                montantAdjKm = valBase * (-ratioKm);
+
+                // B. Entretien
+                montantAdjEntretien = valBase * (entretienPercent / 100);
             }
-            // Plafonnement +/- 20%
-            if(ratioKm > 0.20) ratioKm = 0.20;
-            if(ratioKm < -0.20) ratioKm = -0.20;
-            
-            // Note: Si KM Réel > Théo, ratio positif => on doit REDUIRE la valeur.
-            // Donc la correction est inversée: Valeur * (1 - ratio)
-            const montantAdjKm = valBase * (-ratioKm);
 
-            // B. Entretien
-            const montantAdjEntretien = valBase * (entretienPercent / 100);
-
-            // 3. Valeur Finale
+            // 3. Valeur Finale & Seuil
             const valFinale = valBase + montantAdjKm + montantAdjEntretien;
+            // Règle 2 : La franchise 2/3 s'applique sur la valeur vénale (finale si corrigée, sinon standard)
             const seuilReform = (valFinale * 2) / 3;
 
             // Stockage pour PDF
@@ -574,19 +627,20 @@
                 adjEntretien: montantAdjEntretien,
                 valFinale: valFinale,
                 seuil: seuilReform,
-                km: kmCompteur
+                km: kmCompteur,
+                useCorrectives: useCorrectives
             };
 
             // 4. Affichage
+            document.getElementById('label-vv-type').innerText = useCorrectives ? "Corrigée" : "Standard";
+            document.getElementById('label-vv-sub').innerText = useCorrectives ? "Incluant correctifs KM & Entretien" : "Calcul sur dépréciation temporelle uniquement";
+
             document.getElementById('kpi-vv-final').innerText = formatFinance(valFinale);
             document.getElementById('kpi-val-base').innerText = formatFinance(valBase);
             const totalImpact = montantAdjKm + montantAdjEntretien;
             const impactEl = document.getElementById('kpi-impact-total');
-            impactEl.innerText = (totalImpact >= 0 ? "+" : "") + formatFinance(totalImpact);
+            impactEl.innerText = (totalImpact >= 0 && totalImpact > 0 ? "+" : "") + formatFinance(totalImpact);
             impactEl.className = totalImpact >= 0 ? "text-lg font-medium text-emerald-400 font-mono-num" : "text-lg font-medium text-rose-400 font-mono-num";
-
-            // CORRECTION: Suppression de la ligne qui causait l'erreur
-            // document.getElementById('kpi-dep-total').innerText a été retiré car l'élément n'existe plus dans cette vue.
             
             document.getElementById('kpi-anciennete').innerText = `${annee-1} ans, ${tableRows[tableRows.length-1].jours} jrs`;
             document.getElementById('kpi-seuil').innerText = formatFinance(seuilReform);
@@ -673,20 +727,34 @@
             document.getElementById('pdf-date-now').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('pdf-val-neuve').innerText = formatFinance(parseFloat(document.getElementById('v_valeur_raw').value));
             document.getElementById('pdf-dmec').innerText = document.getElementById('v_dmec').value;
-            document.getElementById('pdf-km').innerText = finalCalculation.km + " km";
             document.getElementById('pdf-sinistre').innerText = document.getElementById('v_sinistre').value;
             document.getElementById('pdf-devis').innerText = formatFinance(parseFloat(document.getElementById('v_devis_raw').value));
             
             // Détail Calculs PDF
             document.getElementById('pdf-val-base').innerText = formatFinance(finalCalculation.valBase);
             
-            const adjKmEl = document.getElementById('pdf-adj-km');
-            adjKmEl.innerText = (finalCalculation.adjKm >= 0 ? "+" : "") + formatFinance(finalCalculation.adjKm);
-            adjKmEl.style.color = finalCalculation.adjKm >= 0 ? "#059669" : "#dc2626";
+            // GESTION AFFICHAGE CORRECTIFS PDF
+            const rowKm = document.getElementById('pdf-row-km');
+            const rowEnt = document.getElementById('pdf-row-ent');
+            
+            if (finalCalculation.useCorrectives) {
+                rowKm.style.display = 'table-row';
+                rowEnt.style.display = 'table-row';
+                
+                document.getElementById('pdf-km').innerText = finalCalculation.km + " km";
+                
+                const adjKmEl = document.getElementById('pdf-adj-km');
+                adjKmEl.innerText = (finalCalculation.adjKm >= 0 ? "+" : "") + formatFinance(finalCalculation.adjKm);
+                adjKmEl.style.color = finalCalculation.adjKm >= 0 ? "#059669" : "#dc2626";
 
-            const adjEntEl = document.getElementById('pdf-adj-entretien');
-            adjEntEl.innerText = (finalCalculation.adjEntretien >= 0 ? "+" : "") + formatFinance(finalCalculation.adjEntretien);
-            adjEntEl.style.color = finalCalculation.adjEntretien >= 0 ? "#059669" : "#dc2626";
+                const adjEntEl = document.getElementById('pdf-adj-entretien');
+                adjEntEl.innerText = (finalCalculation.adjEntretien >= 0 ? "+" : "") + formatFinance(finalCalculation.adjEntretien);
+                adjEntEl.style.color = finalCalculation.adjEntretien >= 0 ? "#059669" : "#dc2626";
+            } else {
+                rowKm.style.display = 'none';
+                rowEnt.style.display = 'none';
+                document.getElementById('pdf-km').innerText = "Non renseigné";
+            }
 
             document.getElementById('pdf-vv-final').innerText = formatFinance(finalCalculation.valFinale);
             document.getElementById('pdf-seuil').innerText = formatFinance(finalCalculation.seuil);
