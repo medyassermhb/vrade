@@ -217,10 +217,21 @@
                              
                              <div id="container_correctifs" class="hidden-section">
                                  <div class="grid grid-cols-2 gap-4 bg-indigo-50/30 p-3 rounded-xl border border-indigo-100">
+                                    <!-- KM Section -->
                                     <div>
                                         <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">KM Compteur</label>
                                         <input type="number" id="v_km_compteur" value="0" placeholder="Ex: 150000" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none font-mono-num text-sm" oninput="updateVrade()">
+                                        
+                                        <!-- KM Impact Display -->
+                                        <div class="mt-2">
+                                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Impact</label>
+                                            <div class="w-full p-2 bg-white border border-slate-200 rounded-xl font-mono-num text-sm text-right flex items-center justify-end h-[38px]">
+                                                <span id="disp_adj_km" class="font-bold text-slate-500">0,00 Dhs</span>
+                                            </div>
+                                        </div>
                                     </div>
+
+                                    <!-- Entretien Section -->
                                     <div>
                                         <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Entretien</label>
                                         <select id="v_entretien" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none text-sm font-normal cursor-pointer" onchange="updateVrade()">
@@ -230,6 +241,14 @@
                                             <option value="-5">Moyen (-5%)</option>
                                             <option value="-10">Mauvais / À revoir (-10%)</option>
                                         </select>
+
+                                        <!-- Entretien Impact Display -->
+                                        <div class="mt-2">
+                                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Impact</label>
+                                            <div class="w-full p-2 bg-white border border-slate-200 rounded-xl font-mono-num text-sm text-right flex items-center justify-end h-[38px]">
+                                                <span id="disp_adj_ent" class="font-bold text-slate-500">0,00 Dhs</span>
+                                            </div>
+                                        </div>
                                     </div>
                                  </div>
                              </div>
@@ -333,6 +352,33 @@
                     <tbody id="vradeTable" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
+
+            <!-- RECAP TABLE -->
+            <div class="bg-slate-50/50 p-8 border-t border-slate-100">
+                <h4 class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-4 text-center">Récapitulatif Financier</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm font-mono-num border border-slate-200 rounded-xl bg-white">
+                        <thead class="bg-slate-100 text-[10px] uppercase font-medium text-slate-500">
+                            <tr>
+                                <th class="p-4 border-b border-r border-slate-200 text-center">Valeur à Neuf</th>
+                                <th class="p-4 border-b border-r border-slate-200 text-center">Valeur Base (Temps)</th>
+                                <th class="p-4 border-b border-r border-slate-200 text-center">Impact Correctifs</th>
+                                <th class="p-4 border-b border-r border-slate-200 text-center bg-indigo-50/50 text-indigo-600">Valeur Vénale</th>
+                                <th class="p-4 border-b border-slate-200 text-center">Seuil Réforme (2/3)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center font-medium text-slate-700">
+                            <tr>
+                                <td class="p-4 border-r border-slate-200" id="dash_recap_val_neuf">0,00 Dhs</td>
+                                <td class="p-4 border-r border-slate-200" id="dash_recap_val_base">0,00 Dhs</td>
+                                <td class="p-4 border-r border-slate-200" id="dash_recap_impact">0,00 Dhs</td>
+                                <td class="p-4 border-r border-slate-200 bg-indigo-50/30 font-bold text-indigo-700 text-lg" id="dash_recap_val_venale">0,00 Dhs</td>
+                                <td class="p-4" id="dash_recap_seuil">0,00 Dhs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <footer class="text-center text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em] pb-12 opacity-60 no-print">
@@ -344,94 +390,94 @@
     <!-- TEMPLATE CACHÉ POUR L'EXPORT PDF           -->
     <!-- ========================================== -->
     <div id="pdf-export-template">
-        <div style="border: 2px solid #333; padding: 30px; border-radius: 15px;">
+        <div style="border: 2px solid #000; padding: 30px; border-radius: 15px;">
             <!-- Header PDF -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #4f46e5; padding-bottom: 20px; margin-bottom: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
                 <div>
-                    <h1 style="margin:0; color:#1e293b; font-size: 24px; font-weight: 500;">Cabinet D'expertise <span style="color:#4f46e5;">BETCAM</span></h1>
-                    <p style="margin:5px 0 0; color:#64748b; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Rapport d'Expertise & d'Arbitrage Économique</p>
+                    <h1 style="margin:0; color:#000; font-size: 24px; font-weight: 500;">Cabinet D'expertise <span style="color:#000;">BETCAM</span></h1>
+                    <p style="margin:5px 0 0; color:#000; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Rapport d'Expertise & d'Arbitrage Économique</p>
                 </div>
-                <div style="text-align: right; color: #64748b; font-size: 10px;">
-                    Établi le : <span id="pdf-date-now" style="font-weight: 500;">--/--/----</span><br>
-                    Réf : <span id="pdf-ref-display">VRADE-AUTOGEN</span>
+                <div style="text-align: right; color: #000; font-size: 10px;">
+                    Établi le : <span id="pdf-date-now" style="font-weight: 500; color: #000;">--/--/----</span><br>
+                    Réf : <span id="pdf-ref-display" style="color: #000;">VRADE-AUTOGEN</span>
                 </div>
             </div>
 
             <!-- Infos Dossier -->
             <div style="margin-bottom: 30px;">
-                <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #4f46e5; margin-bottom: 15px;">1. Informations du Dossier</h2>
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #000; margin-bottom: 15px;">1. Informations du Dossier</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px; color: #000;">
                     <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Valeur à Neuf :</td>
-                        <td id="pdf-val-neuve" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">0,00 Dhs</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Valeur à Neuf :</td>
+                        <td id="pdf-val-neuve" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">0,00 Dhs</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Mise en circulation :</td>
-                        <td id="pdf-dmec" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">--/--/----</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Mise en circulation :</td>
+                        <td id="pdf-dmec" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">--/--/----</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Kilométrage :</td>
-                        <td id="pdf-km" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">0 km</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Kilométrage :</td>
+                        <td id="pdf-km" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">0 km</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">Date du Sinistre :</td>
-                        <td id="pdf-sinistre" style="padding: 8px; border-bottom: 1px solid #f1f5f9; font-weight: 500; text-align: right;">--/--/----</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Date du Sinistre :</td>
+                        <td id="pdf-sinistre" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">--/--/----</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Montant du Devis :</td>
+                        <td id="pdf-devis" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">0,00 Dhs</td>
                     </tr>
                 </table>
             </div>
 
             <!-- Résultats & Arbitrage -->
-            <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+            <div style="background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #000;">
                 
                 <!-- Détail Calcul -->
-                <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px; color: #000;">
                     <tr>
-                        <td style="padding: 5px; color: #64748b;">Valeur Base (Dépréciation Temps) :</td>
-                        <td id="pdf-val-base" style="padding: 5px; text-align: right; font-weight: bold; color: #334155;">0,00 Dhs</td>
+                        <td style="padding: 5px; color: #000;">Valeur Base (Dépréciation Temps) :</td>
+                        <td id="pdf-val-base" style="padding: 5px; text-align: right; font-weight: bold; color: #000;">0,00 Dhs</td>
                     </tr>
                     
                     <!-- Lignes conditionnelles affichées seulement si correctifs appliqués -->
                     <tr id="pdf-row-km" style="display:none;">
-                        <td style="padding: 5px; color: #64748b;">Ajustement Kilométrique (λ) :</td>
-                        <td id="pdf-adj-km" style="padding: 5px; text-align: right; font-weight: bold; color: #059669;">+0,00 Dhs</td>
+                        <td style="padding: 5px; color: #000;">Ajustement Kilométrique (λ) :</td>
+                        <td id="pdf-adj-km" style="padding: 5px; text-align: right; font-weight: bold; color: #000;">+0,00 Dhs</td>
                     </tr>
                     <tr id="pdf-row-ent" style="display:none;">
-                        <td style="padding: 5px; color: #64748b;">Ajustement Entretien (β) :</td>
-                        <td id="pdf-adj-entretien" style="padding: 5px; text-align: right; font-weight: bold; color: #059669;">+0,00 Dhs</td>
+                        <td style="padding: 5px; color: #000;">Ajustement Entretien (β) :</td>
+                        <td id="pdf-adj-entretien" style="padding: 5px; text-align: right; font-weight: bold; color: #000;">+0,00 Dhs</td>
                     </tr>
 
-                    <tr style="border-top: 1px solid #cbd5e1;">
-                        <td style="padding: 8px; font-weight: 800; color: #1e293b; text-transform: uppercase;">Valeur Vénale Finale</td>
-                        <td id="pdf-vv-final" style="padding: 8px; text-align: right; font-weight: 900; font-size: 16px; color: #4f46e5;">0,00 Dhs</td>
+                    <tr style="border-top: 1px solid #000;">
+                        <td style="padding: 8px; font-weight: 800; color: #000; text-transform: uppercase;">Valeur Vénale Finale</td>
+                        <td id="pdf-vv-final" style="padding: 8px; text-align: right; font-weight: 900; font-size: 16px; color: #000;">0,00 Dhs</td>
                     </tr>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #cbd5e1; padding-top: 15px;">
-                     <div style="text-align: left;">
-                         <p style="font-size: 10px; font-weight: 500; color: #64748b; margin: 0; text-transform: uppercase;">Montant Devis</p>
-                         <p id="pdf-devis" style="font-size: 14px; font-weight: bold; margin: 0; color: #1e293b;">0,00 Dhs</p>
-                     </div>
-                     <div style="text-align: right;">
-                        <p style="font-size: 10px; font-weight: 500; color: #64748b; margin: 0; text-transform: uppercase;">Seuil Réforme (2/3)</p>
-                        <p id="pdf-seuil" style="font-size: 14px; font-weight: bold; margin: 0; color: #64748b;">0,00 Dhs</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #000; padding-top: 15px;">
+                     <div style="text-align: right; width: 100%;">
+                        <p style="font-size: 10px; font-weight: 500; color: #000; margin: 0; text-transform: uppercase;">Seuil Réforme (2/3)</p>
+                        <p id="pdf-seuil" style="font-size: 14px; font-weight: bold; margin: 0; color: #000;">0,00 Dhs</p>
                     </div>
                 </div>
 
-                <div id="pdf-decision-box" style="text-align: center; padding: 10px; margin-top: 15px; border-radius: 8px; font-weight: 700; font-size: 14px;">
+                <div id="pdf-decision-box" style="text-align: center; padding: 10px; margin-top: 15px; border-radius: 8px; font-weight: 700; font-size: 14px; border: 1px solid #000; color: #000; background: #fff;">
                     -- DÉCISION --
                 </div>
             </div>
 
             <!-- Tableau Audit PDF -->
-            <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #4f46e5; margin-bottom: 15px;">2. Détail de l'Audit Prorata Temporis</h2>
-            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+            <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #000; margin-bottom: 15px;">2. Détail de l'Audit Prorata Temporis</h2>
+            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left; color: #000;">
                 <thead>
-                    <tr style="background: #f1f5f9; color: #475569;">
-                        <th style="padding: 10px; border: 1px solid #e2e8f0;">Année</th>
-                        <th style="padding: 10px; border: 1px solid #e2e8f0;">Période</th>
-                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;">Taux</th>
-                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: right;">Dépréciation</th>
-                        <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: right;">Valeur Fin</th>
+                    <tr style="background: #fff; color: #000; border-bottom: 1px solid #000;">
+                        <th style="padding: 10px; border: 1px solid #000;">Année</th>
+                        <th style="padding: 10px; border: 1px solid #000;">Période</th>
+                        <th style="padding: 10px; border: 1px solid #000; text-align: center;">Taux</th>
+                        <th style="padding: 10px; border: 1px solid #000; text-align: right;">Dépréciation</th>
+                        <th style="padding: 10px; border: 1px solid #000; text-align: right;">Valeur Fin</th>
                     </tr>
                 </thead>
                 <tbody id="pdf-table-body">
@@ -439,7 +485,7 @@
                 </tbody>
             </table>
 
-            <div style="margin-top: 40px; text-align: center; font-size: 9px; color: #94a3b8;">
+            <div style="margin-top: 40px; text-align: center; font-size: 9px; color: #000;">
                 Ce document est généré informatiquement et certifié par l'algorithme du Cabinet BETCAM.<br>
                 © 2026 Cabinet D'expertise BETCAM.
             </div>
@@ -612,6 +658,15 @@
 
                 // B. Entretien
                 montantAdjEntretien = valBase * (entretienPercent / 100);
+
+                // Update UI for impacts
+                const adjKmEl = document.getElementById('disp_adj_km');
+                adjKmEl.innerText = (montantAdjKm >= 0 ? "+" : "") + formatFinance(montantAdjKm);
+                adjKmEl.className = montantAdjKm >= 0 ? "font-bold text-emerald-500" : "font-bold text-rose-500";
+
+                const adjEntEl = document.getElementById('disp_adj_ent');
+                adjEntEl.innerText = (montantAdjEntretien >= 0 ? "+" : "") + formatFinance(montantAdjEntretien);
+                adjEntEl.className = montantAdjEntretien >= 0 ? "font-bold text-emerald-500" : "font-bold text-rose-500";
             }
 
             // 3. Valeur Finale & Seuil
@@ -644,6 +699,13 @@
             
             document.getElementById('kpi-anciennete').innerText = `${annee-1} ans, ${tableRows[tableRows.length-1].jours} jrs`;
             document.getElementById('kpi-seuil').innerText = formatFinance(seuilReform);
+
+            // Update new Recap Table
+            document.getElementById('dash_recap_val_neuf').innerText = formatFinance(valNeuve);
+            document.getElementById('dash_recap_val_base').innerText = formatFinance(valBase);
+            document.getElementById('dash_recap_impact').innerText = (totalImpact >= 0 && totalImpact > 0 ? "+" : "") + formatFinance(totalImpact);
+            document.getElementById('dash_recap_val_venale').innerText = formatFinance(valFinale);
+            document.getElementById('dash_recap_seuil').innerText = formatFinance(seuilReform);
 
             const decisionBox = document.getElementById('decision-box');
             const decisionLabel = document.getElementById('decision-label');
@@ -713,6 +775,12 @@
         }
 
         // --- GÉNÉRATION DU PDF VIA TEMPLATE ---
+        function formatDateToFrench(dateStr) {
+            if (!dateStr) return "--/--/----";
+            const [y, m, d] = dateStr.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
         function downloadExpertisePDF() {
             const valNeuve = document.getElementById('v_valeur_raw').value;
             if(parseFloat(valNeuve) <= 0) {
@@ -726,8 +794,8 @@
             
             document.getElementById('pdf-date-now').innerText = new Date().toLocaleDateString('fr-FR');
             document.getElementById('pdf-val-neuve').innerText = formatFinance(parseFloat(document.getElementById('v_valeur_raw').value));
-            document.getElementById('pdf-dmec').innerText = document.getElementById('v_dmec').value;
-            document.getElementById('pdf-sinistre').innerText = document.getElementById('v_sinistre').value;
+            document.getElementById('pdf-dmec').innerText = formatDateToFrench(document.getElementById('v_dmec').value);
+            document.getElementById('pdf-sinistre').innerText = formatDateToFrench(document.getElementById('v_sinistre').value);
             document.getElementById('pdf-devis').innerText = formatFinance(parseFloat(document.getElementById('v_devis_raw').value));
             
             // Détail Calculs PDF
@@ -745,11 +813,11 @@
                 
                 const adjKmEl = document.getElementById('pdf-adj-km');
                 adjKmEl.innerText = (finalCalculation.adjKm >= 0 ? "+" : "") + formatFinance(finalCalculation.adjKm);
-                adjKmEl.style.color = finalCalculation.adjKm >= 0 ? "#059669" : "#dc2626";
+                adjKmEl.style.color = finalCalculation.adjKm >= 0 ? "#000" : "#000"; // Black per request (was colored)
 
                 const adjEntEl = document.getElementById('pdf-adj-entretien');
                 adjEntEl.innerText = (finalCalculation.adjEntretien >= 0 ? "+" : "") + formatFinance(finalCalculation.adjEntretien);
-                adjEntEl.style.color = finalCalculation.adjEntretien >= 0 ? "#059669" : "#dc2626";
+                adjEntEl.style.color = finalCalculation.adjEntretien >= 0 ? "#000" : "#000"; // Black per request
             } else {
                 rowKm.style.display = 'none';
                 rowEnt.style.display = 'none';
@@ -763,18 +831,23 @@
             const currentDec = document.getElementById('decision-label').innerText;
             decBox.innerText = currentDec;
             if(currentDec.includes("RÉFORME")) {
-                decBox.style.background = "#fee2e2"; decBox.style.color = "#b91c1c";
+                // Keep minimal styling for emphasis but ensure readability
+                decBox.style.background = "#fff"; 
+                decBox.style.color = "#000";
+                decBox.style.border = "2px solid #000";
             } else {
-                decBox.style.background = "#d1fae5"; decBox.style.color = "#047857";
+                decBox.style.background = "#fff"; 
+                decBox.style.color = "#000";
+                decBox.style.border = "2px solid #000";
             }
 
             document.getElementById('pdf-table-body').innerHTML = tableDataForPDF.map(r => `
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Année ${r.annee}</td>
-                    <td style="padding: 8px; border: 1px solid #e2e8f0;">${r.start.toLocaleDateString()} au ${r.end.toLocaleDateString()}</td>
-                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">${(r.t*100).toFixed(0)}%</td>
-                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right;">-${formatFinance(r.perte, false)}</td>
-                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right; font-weight: 500;">${formatFinance(r.valFin, false)}</td>
+                    <td style="padding: 8px; border: 1px solid #000;">Année ${r.annee}</td>
+                    <td style="padding: 8px; border: 1px solid #000;">${r.start.toLocaleDateString()} au ${r.end.toLocaleDateString()}</td>
+                    <td style="padding: 8px; border: 1px solid #000; text-align: center;">${(r.t*100).toFixed(0)}%</td>
+                    <td style="padding: 8px; border: 1px solid #000; text-align: right;">-${formatFinance(r.perte, false)}</td>
+                    <td style="padding: 8px; border: 1px solid #000; text-align: right; font-weight: 500;">${formatFinance(r.valFin, false)}</td>
                 </tr>
             `).join('');
 
