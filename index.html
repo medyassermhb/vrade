@@ -9,7 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <!-- html2pdf.js pour le téléchargement PDF direct -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -35,9 +34,9 @@
         }
 
         .input-focus:focus { 
-            border-color: #6366f1; 
+            border-color: #1e3a8a; /* Blue-900 focus */
             ring: 4px; 
-            ring-color: rgba(99, 102, 241, 0.1); 
+            ring-color: rgba(30, 58, 138, 0.1); 
         }
 
         .font-mono-num { 
@@ -51,16 +50,16 @@
         }
 
         .logo-box {
-            width: 70px;
-            height: 70px;
-            background: #4f46e5;
-            border-radius: 20px;
+            width: 60px;
+            height: 60px;
+            background: #1e3a8a; /* Blue-900 */
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 8px 16px -4px rgba(30, 58, 138, 0.4);
             color: white;
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
 
         .decision-card {
@@ -93,63 +92,127 @@
 
         /* Styles spécifiques au PDF caché */
         #pdf-export-template {
-            display: none;
+            display: none; /* Caché par défaut */
             background: white;
             color: black;
-            padding: 20px;
-            width: 700px; /* Ajusté pour tenir sur A4 (approx 190mm imprimable) */
+            padding: 40px;
+            width: 210mm;
+            min-height: 297mm;
             box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        /* Overlay de chargement propre */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f1f3f6; /* Même couleur que le fond */
+            z-index: 99999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         @media print {
             .no-print { display: none; }
         }
+        
+        /* Custom Slider */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #1e3a8a;
+            cursor: pointer;
+            margin-top: -10px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
     </style>
 </head>
-<body class="text-slate-800 antialiased p-4 md:p-8">
+<body class="text-slate-800 antialiased p-4 md:p-8 bg-slate-100">
 
-    <div class="max-w-7xl mx-auto space-y-8">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="text-blue-900 text-4xl mb-4">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </div>
+        <p class="text-blue-900 font-bold uppercase tracking-widest text-sm">Génération du PDF...</p>
+    </div>
+
+    <!-- Ajout de l'ID app-wrapper pour le masquage lors de l'export -->
+    <div id="app-wrapper" class="max-w-7xl mx-auto space-y-6">
         
         <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/80 backdrop-blur-md p-6 rounded-[2rem] pro-shadow border border-white/20">
-            <div class="flex items-center gap-5">
-                <div class="logo-box">
-                    <i class="fa-solid fa-car-side"></i>
+        <header class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-5 rounded-[2rem] shadow-sm border border-white/40">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <div class="logo-box flex-shrink-0">
+                    <!-- LOGO SVG (Bouclier Expertise) -->
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-medium text-slate-900 tracking-tight leading-none mb-1">Cabinet D'expertise <span class="text-indigo-600">BETCAM</span></h1>
-                    <p class="text-slate-500 text-[11px] uppercase font-medium tracking-[0.15em] flex items-center gap-2 opacity-80">
-                         Expertise & Arbitrage Économique Professionnel
-                    </p>
+                    <h1 class="text-lg md:text-xl font-bold text-blue-900 tracking-tight leading-none mb-1">Cabinet D'expertise <span class="font-extrabold">BETCAM</span></h1>
+                    <div class="text-blue-900/70 text-[10px] font-bold tracking-widest uppercase leading-snug">
+                        Bureau d'Etudes Techniques<br>Expertises et Conseils Automobiles
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-3 no-print">
-                <!-- Action PDF Directe -->
-                <button onclick="downloadExpertisePDF()" class="px-6 py-2.5 bg-slate-800 text-white rounded-2xl text-sm font-medium hover:bg-slate-900 transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
-                    <i class="fa-solid fa-file-pdf"></i> Télécharger le PDF
+            
+            <!-- Boutons Actions -->
+            <div class="flex items-center gap-3 w-full md:w-auto justify-end no-print">
+                <button onclick="window.location.reload()" class="h-10 w-10 flex items-center justify-center bg-white text-blue-900 border border-blue-200 rounded-xl hover:bg-blue-50 transition-all" title="Réinitialiser">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                
+                <button onclick="downloadExpertisePDF()" class="h-10 px-5 bg-blue-900 text-white rounded-xl text-xs md:text-sm font-bold hover:bg-blue-950 transition-all flex items-center gap-2 shadow-md shadow-blue-200">
+                    <i class="fa-solid fa-file-pdf"></i> <span>Télécharger le PDF</span>
                 </button>
             </div>
         </header>
 
         <!-- Main Workspace -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             <!-- Parameters Sidebar (Saisie) -->
-            <div class="lg:col-span-4 space-y-6 no-print">
-                <div class="bg-white p-8 rounded-[2rem] pro-shadow border border-slate-100 space-y-6">
-                    <h2 class="text-xs font-medium text-slate-400 uppercase tracking-[0.2em] mb-4 text-center border-b pb-2">Données du Dossier</h2>
+            <div class="lg:col-span-4 space-y-5 no-print">
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 space-y-5">
+                    <h2 class="text-xs font-bold text-blue-900 uppercase tracking-[0.2em] mb-2 text-center border-b border-blue-50 pb-3">Données du Dossier</h2>
                     
                     <div class="space-y-4">
                         
-                        <!-- Reference Dossier Input -->
-                        <div>
-                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Référence Dossier</label>
-                            <input type="text" id="v_ref" placeholder="Ex: 26/001/A" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal text-slate-900">
+                        <!-- Reference Dossier & Immatriculation (Alignés sur la même ligne) -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Référence Dossier</label>
+                                <input type="text" id="v_ref" placeholder="Ex: 26/001/A" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm font-semibold text-slate-900 placeholder-slate-400">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Immatriculation</label>
+                                <input type="text" id="v_mat" placeholder="Ex: 12345-A-1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm font-semibold text-slate-900 placeholder-slate-400">
+                            </div>
                         </div>
 
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                            <label class="block text-[9px] font-medium text-slate-400 uppercase tracking-widest mb-1.5">Valeur à Neuf (Dhs)</label>
-                            <input type="text" id="v_valeur_display" placeholder="Saisir montant..." class="w-full bg-transparent border-none focus:ring-0 p-0 font-normal text-lg text-left font-mono-num text-slate-900" 
+                            <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1">Valeur à Neuf (Dhs)</label>
+                            <input type="text" id="v_valeur_display" placeholder="Saisir montant..." class="w-full bg-transparent border-none focus:ring-0 p-0 font-bold text-xl text-left font-mono-num text-slate-900 placeholder-slate-300" 
                                    oninput="updateVrade();" 
                                    onblur="finalizeFormat(this, 'v_valeur_raw')"
                                    onkeydown="handleEnter(event, this)">
@@ -158,18 +221,18 @@
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Date MEC</label>
-                                <input type="date" id="v_dmec" value="2016-11-07" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal" onchange="updateVrade()">
+                                <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Date MEC</label>
+                                <input type="date" id="v_dmec" value="2016-11-07" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm font-medium text-slate-700" onchange="updateVrade()">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Date Sinistre</label>
-                                <input type="date" id="v_sinistre" value="2026-02-01" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal" onchange="updateVrade()">
+                                <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Date Sinistre</label>
+                                <input type="date" id="v_sinistre" value="2026-02-01" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm font-medium text-slate-700" onchange="updateVrade()">
                             </div>
                         </div>
 
-                        <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50">
-                            <label class="block text-[9px] font-medium text-indigo-400 uppercase tracking-widest mb-1.5">Montant du Devis (Dhs)</label>
-                            <input type="text" id="v_devis_display" placeholder="Saisir montant..." class="w-full bg-transparent border-none focus:ring-0 p-0 font-normal text-lg text-left font-mono-num text-indigo-900" 
+                        <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100/50">
+                            <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1">Montant du Devis (Dhs)</label>
+                            <input type="text" id="v_devis_display" placeholder="Saisir montant..." class="w-full bg-transparent border-none focus:ring-0 p-0 font-bold text-xl text-left font-mono-num text-blue-900 placeholder-blue-300" 
                                    oninput="updateVrade();" 
                                    onblur="finalizeFormat(this, 'v_devis_raw')"
                                    onkeydown="handleEnter(event, this)">
@@ -177,14 +240,14 @@
                         </div>
 
                         <div>
-                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Catégorie</label>
-                            <select id="v_cat" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal appearance-none cursor-pointer" onchange="updateVrade()">
+                            <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Catégorie</label>
+                            <select id="v_cat" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm font-medium appearance-none cursor-pointer text-slate-700" onchange="updateVrade()">
                                 <optgroup label="Véhicules Légers">
-                                    <option value="PP/Non Utilitaire">VH Particulier / Non Utilitaire</option>
+                                    <option value="PP/Non Utilitaire" selected>VH Particulier / Non Utilitaire</option>
                                     <option value="Location/Utilitaire">VH Location / Utilitaire</option>
                                 </optgroup>
                                 <optgroup label="Poids Lourds & Chantier">
-                                    <option value="Semi-Remorque" selected>Semi-Remorque (Tracteur)</option>
+                                    <option value="Semi-Remorque">Semi-Remorque (Tracteur)</option>
                                     <option value="Bus et Camions">Bus et Camions</option>
                                     <option value="Engins/Agricole">Engins de Chantier / Agricole</option>
                                 </optgroup>
@@ -196,57 +259,119 @@
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Puissance (CV)</label>
-                                <input type="number" id="v_pf" value="6" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none font-normal text-sm" oninput="updateVrade()">
+                                <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Puissance (CV)</label>
+                                <input type="number" id="v_pf" value="6" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none font-medium text-sm text-slate-700" oninput="updateVrade()">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Carburant</label>
-                                <select id="v_carb" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl input-focus outline-none text-sm font-normal cursor-pointer" onchange="updateVrade()">
+                                <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Carburant</label>
+                                <select id="v_carb" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl input-focus outline-none text-sm font-medium cursor-pointer text-slate-700" onchange="updateVrade()">
                                     <option value="Diesel" selected>Diesel</option>
                                     <option value="Essence">Essence</option>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Toggle Correctifs -->
+                        <!-- SECTION CRITÈRES DE RÉFORME TECHNIQUE -->
                         <div class="pt-4 border-t border-slate-100">
-                             <div class="flex items-center justify-between mb-3">
-                                 <label for="chk_correctives" class="text-[10px] font-medium text-indigo-400 uppercase tracking-widest cursor-pointer select-none">Appliquer Facteurs Correctifs</label>
-                                 <input type="checkbox" id="chk_correctives" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" onchange="toggleCorrectives()">
+                            <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label for="chk_tech_reform" class="text-[10px] font-bold text-red-700 uppercase tracking-widest cursor-pointer select-none">Véhicule Techniquement Irréparable ?</label>
+                                    <input type="checkbox" id="chk_tech_reform" class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer" onchange="toggleTechReason()">
+                                </div>
+                                
+                                <div id="tech_reason_container" class="hidden-section mt-2">
+                                    <label class="block text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1.5 ml-1">Motif de la Réforme Technique</label>
+                                    <select id="v_tech_reason" class="w-full p-2.5 bg-white border border-red-200 rounded-xl input-focus outline-none text-xs font-medium cursor-pointer text-red-900" onchange="updateVrade()">
+                                        <option value="1. Incendie (Compartiment moteur/Habitacle)">1. Incendie (Compartiment moteur/Habitacle)</option>
+                                        <option value="2. Immersion (Niveau tableau de bord)">2. Immersion (Niveau tableau de bord)</option>
+                                        <option value="3. Dommages structurels irréversibles">3. Dommages structurels irréversibles</option>
+                                        <option value="4. Atteinte grave aux éléments de sécurité">4. Atteinte grave aux éléments de sécurité</option>
+                                        <option value="5. Impossibilité technique de réparation">5. Impossibilité technique de réparation</option>
+                                        <option value="6. Vétusté structurelle excessive">6. Vétusté structurelle excessive</option>
+                                        <option value="7. Déformation grave trains roulants/ancrages">7. Déformation grave trains roulants/ancrages</option>
+                                    </select>
+
+                                    <!-- INFOBULLE DYNAMIQUE POUR VÉTUSTÉ -->
+                                    <div id="tech_explanation_box" class="hidden mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-[10px] text-amber-800 leading-relaxed shadow-sm">
+                                        <p class="font-bold mb-1 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Note Technique :</p>
+                                        <p id="tech_explanation_text" class="italic"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- SECTION CRITÈRES DE RÉFORME ÉCONOMIQUE (NEW) -->
+                        <div class="pt-4 border-t border-slate-100">
+                            <div class="bg-orange-50 p-4 rounded-2xl border border-orange-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label for="chk_eco_reform" class="text-[10px] font-bold text-orange-700 uppercase tracking-widest cursor-pointer select-none">Critères de Réforme Économique</label>
+                                    <input type="checkbox" id="chk_eco_reform" class="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 cursor-pointer" onchange="toggleEcoReason()">
+                                </div>
+                                
+                                <div id="eco_reason_container" class="hidden-section mt-2">
+                                    <label class="block text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1.5 ml-1">Motif Administratif / Économique</label>
+                                    <select id="v_eco_reason" class="w-full p-2.5 bg-white border border-orange-200 rounded-xl input-focus outline-none text-xs font-medium cursor-pointer text-orange-900" onchange="updateVrade()">
+                                        <option value="Procédure VEI (Véhicule Économiquement Irréparable)">Procédure VEI (Réparations > Valeur)</option>
+                                        <option value="Indisponibilité des pièces de rechange">Indisponibilité des pièces de rechange</option>
+                                        <option value="Valeur de sauvetage élevée (Epave)">Valeur de sauvetage élevée</option>
+                                        <option value="Accord Commercial / Assureur">Accord Commercial / Assureur</option>
+                                        <option value="Risque d'aléas importants au démontage">Risque d'aléas importants au démontage</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BLOC OPTIONS CORRECTIFS & SEUIL -->
+                        <div class="pt-4 border-t border-slate-100">
+                             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                                 <!-- Ligne 1 : Facteurs Correctifs -->
+                                 <div class="flex items-center justify-between">
+                                     <label for="chk_correctives" class="text-[10px] font-bold text-blue-900 uppercase tracking-widest cursor-pointer select-none">
+                                         APPLIQUER FACTEURS CORRECTIFS
+                                     </label>
+                                     <input type="checkbox" id="chk_correctives" class="w-5 h-5 text-blue-900 rounded border-gray-300 focus:ring-blue-900 cursor-pointer transition-colors" onchange="toggleCorrectives()">
+                                 </div>
+                                 
+                                 <!-- Ligne 2 : Seuil -->
+                                 <div class="flex items-center justify-between border-t border-slate-100 pt-4">
+                                     <label for="chk_apply_to_threshold" class="text-[10px] font-bold text-blue-900 uppercase tracking-widest cursor-pointer select-none flex items-center gap-2">
+                                         <span>APPLIQUER CORRECTIFS SUR SEUIL (2/3)</span>
+                                     </label>
+                                     <input type="checkbox" id="chk_apply_to_threshold" class="w-5 h-5 text-blue-900 rounded border-gray-300 focus:ring-blue-900 cursor-pointer transition-colors" onchange="updateVrade()">
+                                 </div>
                              </div>
-                             
-                             <div id="container_correctifs" class="hidden-section">
-                                 <div class="grid grid-cols-2 gap-4 bg-indigo-50/30 p-3 rounded-xl border border-indigo-100">
+
+                             <!-- Contenu Déroulant Correctifs -->
+                             <div id="container_correctifs" class="hidden-section mt-3">
+                                 <div class="grid grid-cols-2 gap-4 bg-blue-50/30 p-3 rounded-xl border border-blue-100">
                                     <!-- KM Section -->
                                     <div>
-                                        <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">KM Compteur</label>
-                                        <input type="number" id="v_km_compteur" value="0" placeholder="Ex: 150000" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none font-mono-num text-sm" oninput="updateVrade()">
+                                        <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">KM Compteur</label>
+                                        <input type="number" id="v_km_compteur" value="0" placeholder="Ex: 150000" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none font-mono-num text-sm text-center" oninput="updateVrade()">
                                         
                                         <!-- KM Impact Display -->
-                                        <div class="mt-2">
-                                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Impact</label>
-                                            <div class="w-full p-2 bg-white border border-slate-200 rounded-xl font-mono-num text-sm text-right flex items-center justify-end h-[38px]">
-                                                <span id="disp_adj_km" class="font-bold text-slate-500">0,00 Dhs</span>
+                                        <div class="mt-2 text-right">
+                                            <div class="w-full p-1.5 bg-white/50 rounded-lg font-mono-num text-xs font-bold text-slate-500">
+                                                <span id="disp_adj_km">0,00 Dhs</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Entretien Section -->
                                     <div>
-                                        <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Entretien</label>
-                                        <select id="v_entretien" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none text-sm font-normal cursor-pointer" onchange="updateVrade()">
+                                        <label class="block text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1.5">Entretien</label>
+                                        <select id="v_entretien" class="w-full p-2 bg-white border border-slate-200 rounded-xl input-focus outline-none text-xs font-medium cursor-pointer" onchange="updateVrade()">
                                             <option value="0">Standard (0%)</option>
                                             <option value="10">Suivi Concessionnaire (+10%)</option>
                                             <option value="5">Bon État (+5%)</option>
                                             <option value="-5">Moyen (-5%)</option>
-                                            <option value="-10">Mauvais / À revoir (-10%)</option>
+                                            <option value="-10">Mauvais (-10%)</option>
                                         </select>
 
                                         <!-- Entretien Impact Display -->
-                                        <div class="mt-2">
-                                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1 ml-1">Impact</label>
-                                            <div class="w-full p-2 bg-white border border-slate-200 rounded-xl font-mono-num text-sm text-right flex items-center justify-end h-[38px]">
-                                                <span id="disp_adj_ent" class="font-bold text-slate-500">0,00 Dhs</span>
+                                        <div class="mt-2 text-right">
+                                            <div class="w-full p-1.5 bg-white/50 rounded-lg font-mono-num text-xs font-bold text-slate-500">
+                                                <span id="disp_adj_ent">0,00 Dhs</span>
                                             </div>
                                         </div>
                                     </div>
@@ -257,63 +382,64 @@
                 </div>
 
                 <div class="p-5 bg-blue-900 text-white rounded-[2rem] shadow-lg border border-blue-800">
-                    <h4 class="text-xs font-medium uppercase tracking-widest mb-2 opacity-60">Règle de Réforme</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">Règle de Réforme</h4>
                     <p class="text-xs leading-relaxed font-normal">
-                        Un véhicule est déclaré en <span class="font-medium underline">Réforme Économique</span> si le montant des réparations excède les <span class="font-medium">2/3 (66.67%)</span> de sa valeur vénale.
+                        Un véhicule est déclaré en <span class="font-bold underline">Réforme Économique</span> si le montant des réparations excède les <span class="font-bold">2/3 (66.67%)</span> de sa <span class="text-blue-200 font-medium">Valeur Technique</span>.
                     </p>
                 </div>
             </div>
 
             <!-- Results Dashboard -->
-            <div class="lg:col-span-8 flex flex-col gap-8">
+            <div class="lg:col-span-8 flex flex-col gap-6">
                 
                 <!-- Décision Technique Card -->
-                <div id="decision-box" class="decision-card bg-white p-8 rounded-[2.5rem] pro-shadow border-t-8 border-slate-200 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                <div id="decision-box" class="decision-card bg-white p-8 rounded-[2.5rem] shadow-sm border-t-8 border-slate-200 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
                     <div class="flex items-center gap-6">
                         <div id="decision-icon-bg" class="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-3xl text-slate-400 shadow-inner">
                             <i id="decision-icon" class="fa-solid fa-scale-balanced"></i>
                         </div>
                         <div>
-                            <p class="text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em] mb-1">Arbitrage Technique</p>
+                            <p class="text-blue-900 text-[11px] font-bold uppercase tracking-[0.2em] mb-1">EXPERTISE TECHNIQUE</p>
                             <h2 id="decision-label" class="text-2xl md:text-3xl font-medium text-slate-900 leading-tight">En attente de saisie</h2>
+                            <p id="decision-sub" class="text-xs text-slate-500 mt-1 font-medium hidden">Motif : <span id="decision-reason"></span></p>
                         </div>
                     </div>
                     <div class="text-center md:text-right border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-8">
-                        <p class="text-slate-400 text-[10px] font-medium uppercase tracking-widest mb-1">Seuil de Réforme (2/3)</p>
+                        <p class="text-blue-900 text-[11px] font-bold uppercase tracking-widest mb-1" id="kpi-seuil-label">Seuil Réforme (2/3 de Base)</p>
                         <p id="kpi-seuil" class="text-xl font-medium font-mono-num text-slate-700">0,00 Dhs</p>
                     </div>
                 </div>
 
                 <!-- KPIs Principaux -->
-                <div class="bg-slate-900 p-10 rounded-[2.5rem] text-white pro-shadow flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
+                <div class="bg-blue-950 p-10 rounded-[2.5rem] text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden border border-blue-900">
                     <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                         <svg viewBox="0 0 100 100" class="w-full h-full"><path d="M0 100 L100 0 L100 100 Z" fill="white"/></svg>
                     </div>
                     <div class="relative z-10 text-center md:text-left flex-1">
-                        <p class="text-indigo-400 text-[10px] font-medium uppercase tracking-[0.3em] mb-2">Valeur Vénale <span id="label-vv-type">Standard</span></p>
+                        <p class="text-blue-200 text-[11px] font-bold uppercase tracking-[0.3em] mb-2">Valeur Vénale <span id="label-vv-type">Standard</span></p>
                         <h3 class="text-4xl font-medium mt-1 font-mono-num tracking-tight" id="kpi-vv-final">0,00 Dhs</h3>
-                        <p class="text-slate-400 text-[10px] mt-2 font-normal" id="label-vv-sub">Calcul sur dépréciation temporelle</p>
+                        <p class="text-slate-400 text-[11px] mt-2 font-normal" id="label-vv-sub">Calcul sur dépréciation temporelle</p>
                     </div>
                     <div class="text-right border-l border-white/10 pl-10 hidden md:block relative z-10">
                         <div class="mb-4">
-                            <p class="text-white/40 text-[10px] font-medium uppercase tracking-[0.2em] mb-1">Valeur Base (Temps)</p>
-                            <p class="text-lg font-medium text-white/80 font-mono-num" id="kpi-val-base">0,00 Dhs</p>
+                            <p class="text-white/60 text-[11px] font-bold uppercase tracking-[0.2em] mb-1">Valeur Base (Temps)</p>
+                            <p class="text-lg font-medium text-white/90 font-mono-num" id="kpi-val-base">0,00 Dhs</p>
                         </div>
                         <div>
-                            <p class="text-white/40 text-[10px] font-medium uppercase tracking-[0.2em] mb-1">Impact Correctifs</p>
+                            <p class="text-white/60 text-[11px] font-bold uppercase tracking-[0.2em] mb-1">Impact Correctifs</p>
                             <p class="text-lg font-medium text-emerald-400 font-mono-num" id="kpi-impact-total">0,00 Dhs</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Graphs -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-grow">
-                    <div class="bg-white p-8 rounded-[2.5rem] pro-shadow border border-slate-50 flex flex-col">
-                        <h4 class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">Courbe de Vétusté</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+                        <h4 class="text-[11px] font-bold text-blue-900 uppercase tracking-[0.2em] mb-6 text-center">Courbe de Vétusté</h4>
                         <div class="chart-container"><canvas id="chartEvo"></canvas></div>
                     </div>
-                    <div class="bg-white p-8 rounded-[2.5rem] pro-shadow border border-slate-50 flex flex-col">
-                        <h4 class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">Composition Valeur</h4>
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+                        <h4 class="text-[11px] font-bold text-blue-900 uppercase tracking-[0.2em] mb-6 text-center">Composition Valeur</h4>
                         <div class="chart-container"><canvas id="chartDist"></canvas></div>
                     </div>
                 </div>
@@ -321,50 +447,54 @@
         </section>
 
         <!-- Audit Table -->
-        <section class="bg-white rounded-[2.5rem] pro-shadow border border-slate-50 overflow-hidden no-print">
-            <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                <div>
-                    <h3 class="text-xl font-medium text-slate-900 tracking-tight mb-1">Audit Prorata Temporis</h3>
-                    <p class="text-sm text-slate-500 font-medium">Certification établie par le Cabinet BETCAM.</p>
-                </div>
-                <div class="seniority-badge px-6 py-3.5 text-white rounded-2xl flex items-center gap-4 border border-emerald-400/30 shadow-lg shadow-emerald-100/50" id="kpi-anciennete-container">
-                    <i class="fa-solid fa-calendar-check text-xl opacity-60"></i>
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-medium text-emerald-100 tracking-widest uppercase">ANCIENNETÉ</span>
-                        <span class="text-xl font-medium tracking-tight leading-none" id="kpi-anciennete">0 ans, 0 jrs</span>
+        <section class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden no-print">
+            
+            <!-- Wrapper pour masquer le tableau en cas de réforme technique -->
+            <div id="ui-audit-section">
+                <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-indigo-900 tracking-tight mb-1">Prorata Temporis</h3>
+                        <p class="text-sm text-blue-800 font-medium">Certification établie par le Cabinet BETCAM.</p>
+                    </div>
+                    <div class="seniority-badge px-6 py-3.5 text-white rounded-2xl flex items-center gap-4 border border-emerald-400/30 shadow-lg shadow-emerald-100/50" id="kpi-anciennete-container">
+                        <i class="fa-solid fa-calendar-check text-xl opacity-60"></i>
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold text-emerald-100 tracking-widest uppercase">ANCIENNETÉ</span>
+                            <span class="text-xl font-bold tracking-tight leading-none" id="kpi-anciennete">0 ans, 0 jrs</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse font-mono-num text-sm">
-                    <thead>
-                        <tr class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.15em] bg-slate-50/50">
-                            <th class="p-6 border-b border-slate-100">Année</th>
-                            <th class="p-6 border-b border-slate-100">Période d'application</th>
-                            <th class="p-6 border-b border-slate-100 text-center">Taux (%)</th>
-                            <th class="p-6 border-b border-slate-100 text-right">Val. Début (Dhs)</th>
-                            <th class="p-6 border-b border-slate-100 text-right">Dépréciation (Dhs)</th>
-                            <th class="p-6 border-b border-slate-100 text-right font-medium text-slate-900">Val. Fin (Dhs)</th>
-                            <th class="p-6 border-b border-slate-100 text-center">Jours</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vradeTable" class="divide-y divide-slate-50"></tbody>
-                </table>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse font-mono-num text-sm">
+                        <thead>
+                            <tr class="text-[11px] font-bold text-blue-900 uppercase tracking-[0.15em] bg-blue-50/30">
+                                <th class="p-6 border-b border-blue-100">Année</th>
+                                <th class="p-6 border-b border-blue-100">Période d'application</th>
+                                <th class="p-6 border-b border-blue-100 text-center">Taux (%)</th>
+                                <th class="p-6 border-b border-blue-100 text-right">Val. Début (Dhs)</th>
+                                <th class="p-6 border-b border-blue-100 text-right">Dépréciation (Dhs)</th>
+                                <th class="p-6 border-b border-blue-100 text-right font-bold text-blue-950">Val. Fin (Dhs)</th>
+                                <th class="p-6 border-b border-blue-100 text-center">Jours</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vradeTable" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- RECAP TABLE -->
             <div class="bg-slate-50/50 p-8 border-t border-slate-100">
-                <h4 class="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-4 text-center">Récapitulatif Financier</h4>
+                <h4 class="text-[11px] font-bold text-blue-900 uppercase tracking-[0.2em] mb-4 text-center">Récapitulatif Financier</h4>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm font-mono-num border border-slate-200 rounded-xl bg-white">
-                        <thead class="bg-slate-100 text-[10px] uppercase font-medium text-slate-500">
+                        <thead class="bg-blue-50 text-[11px] uppercase font-bold text-blue-900">
                             <tr>
                                 <th class="p-4 border-b border-r border-slate-200 text-center">Valeur à Neuf</th>
                                 <th class="p-4 border-b border-r border-slate-200 text-center">Valeur Base (Temps)</th>
                                 <th class="p-4 border-b border-r border-slate-200 text-center">Impact Correctifs</th>
-                                <th class="p-4 border-b border-r border-slate-200 text-center bg-indigo-50/50 text-indigo-600">Valeur Vénale</th>
-                                <th class="p-4 border-b border-slate-200 text-center">Seuil Réforme (2/3)</th>
+                                <th class="p-4 border-b border-r border-slate-200 text-center bg-blue-100/50 text-blue-900">Valeur Vénale Technique</th>
+                                <th class="p-4 border-b border-slate-200 text-center" id="dash_recap_seuil_label">Seuil (2/3 Base)</th>
                             </tr>
                         </thead>
                         <tbody class="text-center font-medium text-slate-700">
@@ -372,127 +502,192 @@
                                 <td class="p-4 border-r border-slate-200" id="dash_recap_val_neuf">0,00 Dhs</td>
                                 <td class="p-4 border-r border-slate-200" id="dash_recap_val_base">0,00 Dhs</td>
                                 <td class="p-4 border-r border-slate-200" id="dash_recap_impact">0,00 Dhs</td>
-                                <td class="p-4 border-r border-slate-200 bg-indigo-50/30 font-bold text-indigo-700 text-lg" id="dash_recap_val_venale">0,00 Dhs</td>
+                                <td class="p-4 border-r border-slate-200 bg-blue-50/30 font-bold text-blue-900 text-lg" id="dash_recap_val_venale">0,00 Dhs</td>
                                 <td class="p-4" id="dash_recap_seuil">0,00 Dhs</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- NOUVELLE SECTION : MAJORATION MARCHÉ -->
+            <div class="bg-emerald-50/30 p-8 border-t border-slate-100">
+                <h4 class="text-[11px] font-bold text-blue-900 uppercase tracking-[0.2em] mb-6 text-center flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-chart-line"></i> Ajustement Expert : Marché & État
+                </h4>
+                
+                <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="text-xs font-bold text-slate-600 uppercase tracking-wide">Majoration (Propreté / Marché / Rareté)</label>
+                        <span id="market-percent-display" class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold font-mono-num">+0%</span>
+                    </div>
+                    
+                    <input type="range" id="v_market_boost" min="0" max="50" value="0" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-900" oninput="updateVrade()">
+                    
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-2 font-medium">
+                        <span>0%</span>
+                        <span>+25%</span>
+                        <span>+50%</span>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-end">
+                        <div class="text-xs text-slate-500">
+                            Impact sur la valeur : <span id="market-value-added" class="font-bold text-emerald-600 font-mono-num">+0,00 Dhs</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Valeur Vénale Retenue</p>
+                            <p id="kpi-final-retained" class="text-2xl font-extrabold text-blue-900 font-mono-num">0,00 Dhs</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-center text-[10px] text-slate-400 italic mt-4 max-w-lg mx-auto">
+                    * Cet ajustement augmente la Valeur Vénale Finale mais n'affecte PAS le seuil de réforme économique (2/3 de la valeur technique), conformément aux procédures d'expertise.
+                </p>
+            </div>
         </section>
 
-        <footer class="text-center text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em] pb-12 opacity-60 no-print">
+        <footer class="text-center text-blue-900 text-[11px] font-bold uppercase tracking-[0.2em] pb-12 opacity-80 no-print mt-8">
             <p>© 2026 Cabinet D'expertise BETCAM - Document certifié conforme.</p>
         </footer>
-    </div>
+    </div> <!-- Fin du app-wrapper -->
 
     <!-- ========================================== -->
     <!-- TEMPLATE CACHÉ POUR L'EXPORT PDF           -->
     <!-- ========================================== -->
     <div id="pdf-export-template">
-        <div style="border: 2px solid #000; padding: 30px; border-radius: 15px;">
-            <!-- Header PDF -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
-                <div>
-                    <h1 style="margin:0; color:#000; font-size: 24px; font-weight: 500;">Cabinet D'expertise <span style="color:#000;">BETCAM</span></h1>
-                    <p style="margin:5px 0 0; color:#000; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Rapport d'Expertise & d'Arbitrage Économique</p>
-                </div>
-                <div style="text-align: right; color: #000; font-size: 10px;">
-                    Établi le : <span id="pdf-date-now" style="font-weight: 500; color: #000;">--/--/----</span><br>
-                    Réf : <span id="pdf-ref-display" style="color: #000;">VRADE-AUTOGEN</span>
-                </div>
-            </div>
-
-            <!-- Infos Dossier -->
-            <div style="margin-bottom: 30px;">
-                <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #000; margin-bottom: 15px;">1. Informations du Dossier</h2>
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px; color: #000;">
-                    <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Valeur à Neuf :</td>
-                        <td id="pdf-val-neuve" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">0,00 Dhs</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Mise en circulation :</td>
-                        <td id="pdf-dmec" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">--/--/----</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Kilométrage :</td>
-                        <td id="pdf-km" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">0 km</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Date du Sinistre :</td>
-                        <td id="pdf-sinistre" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">--/--/----</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #000; color: #000;">Montant du Devis :</td>
-                        <td id="pdf-devis" style="padding: 8px; border-bottom: 1px solid #000; font-weight: 500; text-align: right; color: #000;">0,00 Dhs</td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Résultats & Arbitrage -->
-            <div style="background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #000;">
-                
-                <!-- Détail Calcul -->
-                <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px; color: #000;">
-                    <tr>
-                        <td style="padding: 5px; color: #000;">Valeur Base (Dépréciation Temps) :</td>
-                        <td id="pdf-val-base" style="padding: 5px; text-align: right; font-weight: bold; color: #000;">0,00 Dhs</td>
-                    </tr>
-                    
-                    <!-- Lignes conditionnelles affichées seulement si correctifs appliqués -->
-                    <tr id="pdf-row-km" style="display:none;">
-                        <td style="padding: 5px; color: #000;">Ajustement Kilométrique (λ) :</td>
-                        <td id="pdf-adj-km" style="padding: 5px; text-align: right; font-weight: bold; color: #000;">+0,00 Dhs</td>
-                    </tr>
-                    <tr id="pdf-row-ent" style="display:none;">
-                        <td style="padding: 5px; color: #000;">Ajustement Entretien (β) :</td>
-                        <td id="pdf-adj-entretien" style="padding: 5px; text-align: right; font-weight: bold; color: #000;">+0,00 Dhs</td>
-                    </tr>
-
-                    <tr style="border-top: 1px solid #000;">
-                        <td style="padding: 8px; font-weight: 800; color: #000; text-transform: uppercase;">Valeur Vénale Finale</td>
-                        <td id="pdf-vv-final" style="padding: 8px; text-align: right; font-weight: 900; font-size: 16px; color: #000;">0,00 Dhs</td>
-                    </tr>
-                </table>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #000; padding-top: 15px;">
-                     <div style="text-align: right; width: 100%;">
-                        <p style="font-size: 10px; font-weight: 500; color: #000; margin: 0; text-transform: uppercase;">Seuil Réforme (2/3)</p>
-                        <p id="pdf-seuil" style="font-size: 14px; font-weight: bold; margin: 0; color: #000;">0,00 Dhs</p>
+        <div style="border: 2px solid #1e3a8a; padding: 20px; border-radius: 10px; width: 100%; height: 100%; box-sizing: border-box; background: white;">
+            <!-- Header PDF (Compacté) -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- LOGO SVG (Bouclier Expertise) for PDF -->
+                    <div style="width: 30px; height: 30px; color: #1e3a8a;">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="m9 12 2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 style="margin:0; color:#1e3a8a; font-size: 18px; font-weight: 700;">Cabinet D'expertise <span style="color:#1e3a8a;">BETCAM</span></h1>
+                        <p style="margin:2px 0 0; color:#1e3a8a; font-size: 7px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                            Bureau d'Etudes Techniques - Expertises Automobiles
+                        </p>
                     </div>
                 </div>
-
-                <div id="pdf-decision-box" style="text-align: center; padding: 10px; margin-top: 15px; border-radius: 8px; font-weight: 700; font-size: 14px; border: 1px solid #000; color: #000; background: #fff;">
-                    -- DÉCISION --
+                <div style="text-align: right; color: #1e3a8a; font-size: 9px;">
+                    Établi le : <span id="pdf-date-now" style="font-weight: 700; color: #000;">--/--/----</span><br>
+                    Réf : <span id="pdf-ref-display" style="color: #000; font-weight: 600;">VRADE-AUTOGEN</span>
                 </div>
             </div>
 
-            <!-- Tableau Audit PDF -->
-            <h2 style="font-size: 14px; font-weight: 500; text-transform: uppercase; color: #000; margin-bottom: 15px;">2. Détail de l'Audit Prorata Temporis</h2>
-            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left; color: #000;">
-                <thead>
-                    <tr style="background: #fff; color: #000; border-bottom: 1px solid #000;">
-                        <th style="padding: 10px; border: 1px solid #000;">Année</th>
-                        <th style="padding: 10px; border: 1px solid #000;">Période</th>
-                        <th style="padding: 10px; border: 1px solid #000; text-align: center;">Taux</th>
-                        <th style="padding: 10px; border: 1px solid #000; text-align: right;">Dépréciation</th>
-                        <th style="padding: 10px; border: 1px solid #000; text-align: right;">Valeur Fin</th>
-                    </tr>
-                </thead>
-                <tbody id="pdf-table-body">
-                    <!-- Rempli par script -->
-                </tbody>
-            </table>
+            <!-- Container 2 Colonnes : Infos & Résultats -->
+            <div style="display: flex; gap: 20px; margin-bottom: 15px; align-items: flex-start;">
+                
+                <!-- Colonne Gauche: Infos Dossier -->
+                <div style="flex: 1;">
+                    <h2 style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #1e3a8a; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">1. Informations Véhicule</h2>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 9px; color: #000;">
+                        <tr>
+                            <td style="padding: 4px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a; font-weight: 600;">Immatriculation :</td>
+                            <td id="pdf-mat" style="padding: 4px; border-bottom: 1px solid #e2e8f0; font-weight: 500; text-align: right; color: #000;">--</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a; font-weight: 600;">Valeur à Neuf :</td>
+                            <td id="pdf-val-neuve" style="padding: 4px; border-bottom: 1px solid #e2e8f0; font-weight: 500; text-align: right; color: #000;">0,00 Dhs</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a; font-weight: 600;">Mise en circulation :</td>
+                            <td id="pdf-dmec" style="padding: 4px; border-bottom: 1px solid #e2e8f0; font-weight: 500; text-align: right; color: #000;">--/--/----</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a; font-weight: 600;">Date du Sinistre :</td>
+                            <td id="pdf-sinistre" style="padding: 4px; border-bottom: 1px solid #e2e8f0; font-weight: 500; text-align: right; color: #000;">--/--/----</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a; font-weight: 600;">Ancienneté :</td>
+                            <td id="pdf-anciennete" style="padding: 4px; border-bottom: 1px solid #e2e8f0; font-weight: 500; text-align: right; color: #000;">0 ans, 0 jrs</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a; font-weight: 600;">Kilométrage :</td>
+                            <td id="pdf-km" style="padding: 4px; border-bottom: 1px solid #e2e8f0; font-weight: 500; text-align: right; color: #000;">0 km</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a; font-weight: 600;">Montant Devis :</td>
+                            <td id="pdf-devis" style="padding: 4px; border-bottom: 1px solid #e2e8f0; font-weight: 500; text-align: right; color: #000;">0,00 Dhs</td>
+                        </tr>
+                    </table>
+                </div>
 
-            <div style="margin-top: 40px; text-align: center; font-size: 9px; color: #000;">
+                <!-- Colonne Droite: Résultats & Arbitrage -->
+                <div style="flex: 1; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h2 style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #1e3a8a; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">SYNTHÈSE FINANCIÈRE</h2>
+                    
+                    <!-- Détail Calcul -->
+                    <table style="width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 10px; color: #000;">
+                        <tr>
+                            <td style="padding: 3px; color: #64748b; font-weight: 600;">Valeur Base (Temps) :</td>
+                            <td id="pdf-val-base" style="padding: 3px; text-align: right; font-weight: bold; color: #000;">0,00 Dhs</td>
+                        </tr>
+                        
+                        <!-- Lignes conditionnelles -->
+                        <tr id="pdf-row-km" style="display:none;">
+                            <td style="padding: 3px; color: #64748b; font-weight: 600;">Ajustement Km (λ) :</td>
+                            <td id="pdf-adj-km" style="padding: 3px; text-align: right; font-weight: bold; color: #000;">+0,00 Dhs</td>
+                        </tr>
+                        <tr id="pdf-row-ent" style="display:none;">
+                            <td style="padding: 3px; color: #64748b; font-weight: 600;">Ajustement Entretien (β) :</td>
+                            <td id="pdf-adj-entretien" style="padding: 3px; text-align: right; font-weight: bold; color: #000;">+0,00 Dhs</td>
+                        </tr>
+
+                        <tr style="border-top: 1px solid #cbd5e1;">
+                            <td style="padding: 6px 3px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; font-size: 10px;">Valeur Vénale Finale</td>
+                            <td id="pdf-vv-final" style="padding: 6px 3px; text-align: right; font-weight: 900; font-size: 14px; color: #1e3a8a;">0,00 Dhs</td>
+                        </tr>
+                    </table>
+
+                    <div style="text-align: right; border-top: 1px dashed #94a3b8; padding-top: 8px; margin-bottom: 8px;">
+                        <p style="font-size: 8px; font-weight: 700; color: #64748b; margin: 0; text-transform: uppercase;" id="pdf-seuil-label">Seuil Réforme (2/3)</p>
+                        <p id="pdf-seuil" style="font-size: 12px; font-weight: bold; margin: 0; color: #000;">0,00 Dhs</p>
+                    </div>
+
+                    <div id="pdf-decision-box" style="text-align: center; padding: 6px; border-radius: 4px; font-weight: 700; font-size: 11px; border: 1px solid #1e3a8a; color: #1e3a8a; background: #fff;">
+                        -- DÉCISION --
+                    </div>
+                    <div id="pdf-tech-reason" style="display:none; text-align: center; margin-top: 5px; font-size: 8px; font-weight: bold; color: #991b1b;">
+                        <span id="pdf-tech-reason-text"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau Audit PDF - Section à masquer si réforme technique -->
+            <div id="pdf-audit-section">
+                <h2 style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #1e3a8a; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">2. Détail Prorata Temporis</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: left; color: #000;">
+                    <thead>
+                        <tr style="background: #f1f5f9; color: #1e3a8a; border-bottom: 1px solid #1e3a8a;">
+                            <th style="padding: 4px; border: 1px solid #e2e8f0; font-weight: 700;">Année</th>
+                            <th style="padding: 4px; border: 1px solid #e2e8f0; font-weight: 700;">Période</th>
+                            <th style="padding: 4px; border: 1px solid #e2e8f0; text-align: center; font-weight: 700;">Taux</th>
+                            <th style="padding: 4px; border: 1px solid #e2e8f0; text-align: right; font-weight: 700;">Dépréciation</th>
+                            <th style="padding: 4px; border: 1px solid #e2e8f0; text-align: right; font-weight: 700;">Valeur Fin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pdf-table-body">
+                        <!-- Rempli par script -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 15px; text-align: center; font-size: 8px; color: #94a3b8; font-weight: 600; border-top: 1px solid #f1f5f9; padding-top: 10px;">
                 Ce document est généré informatiquement et certifié par l'algorithme du Cabinet BETCAM.<br>
                 © 2026 Cabinet D'expertise BETCAM.
             </div>
         </div>
     </div>
-
+    
     <script>
+        // MAIN LOGIC SCRIPT
+        
         Chart.register(ChartDataLabels);
 
         // --- MATRICE DE CALCUL ---
@@ -533,16 +728,26 @@
         let tableDataForPDF = [];
         let finalCalculation = {};
 
+        // Utility to safely set text content
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerText = text;
+            } else {
+                console.warn(`Element with id '${id}' not found for text update.`);
+            }
+        }
+
         function formatFinance(num, withSuffix = true) {
             let formatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num).replace(/\u00a0/g, " ");
             return withSuffix ? formatted + " Dhs" : formatted;
         }
 
-        function handleEnter(e, el) {
+        window.handleEnter = function(e, el) {
             if (e.key === "Enter") { updateVrade(); el.blur(); }
         }
 
-        function finalizeFormat(el, rawId) {
+        window.finalizeFormat = function(el, rawId) {
             let cleanVal = el.value.replace(/\s/g, '').replace(',', '.');
             let numeric = parseFloat(cleanVal) || 0;
             document.getElementById(rawId).value = numeric;
@@ -550,7 +755,7 @@
             updateVrade();
         }
 
-        function getTaux(annee, cat, p, carb) {
+        window.getTaux = function(annee, cat, p, carb) {
             if (cat === "Engins/Agricole") return 0;
             if (annee >= 11) return 0.05;
 
@@ -559,7 +764,7 @@
             return line ? line.ans[Math.min(annee - 1, 4)] : 0.10;
         }
 
-        function getReferenceKmPerYear(cat, carb) {
+        window.getReferenceKmPerYear = function(cat, carb) {
             if (cat === "Motocycle") return 5000;
             if (cat === "Engins/Agricole") return 1500; 
             if (cat === "Bus et Camions" || cat === "Semi-Remorque") return 50000;
@@ -567,7 +772,7 @@
             return 20000; // Essence
         }
 
-        function toggleCorrectives() {
+        window.toggleCorrectives = function() {
             const container = document.getElementById('container_correctifs');
             const chk = document.getElementById('chk_correctives');
             
@@ -581,11 +786,38 @@
             updateVrade();
         }
 
-        function updateVrade() {
+        window.toggleTechReason = function() {
+            const container = document.getElementById('tech_reason_container');
+            const chk = document.getElementById('chk_tech_reform');
+            
+            if (chk.checked) {
+                container.classList.remove('hidden-section');
+                container.classList.add('visible-section');
+            } else {
+                container.classList.remove('visible-section');
+                container.classList.add('hidden-section');
+            }
+            updateVrade();
+        }
+
+        window.toggleEcoReason = function() {
+            const container = document.getElementById('eco_reason_container');
+            const chk = document.getElementById('chk_eco_reform');
+            
+            if (chk.checked) {
+                container.classList.remove('hidden-section');
+                container.classList.add('visible-section');
+            } else {
+                container.classList.remove('visible-section');
+                container.classList.add('hidden-section');
+            }
+            updateVrade();
+        }
+
+        window.updateVrade = function() {
             let valNeuve = parseFloat(document.getElementById('v_valeur_display').value.replace(/\s/g, '').replace(',', '.')) || 0;
             let montantDevis = parseFloat(document.getElementById('v_devis_display').value.replace(/\s/g, '').replace(',', '.')) || 0;
             
-            // Logic Toggle
             const useCorrectives = document.getElementById('chk_correctives').checked;
             let kmCompteur = 0;
             let entretienPercent = 0;
@@ -593,6 +825,32 @@
             if (useCorrectives) {
                 kmCompteur = parseFloat(document.getElementById('v_km_compteur').value) || 0;
                 entretienPercent = parseFloat(document.getElementById('v_entretien').value) || 0;
+            }
+
+            const isTechReform = document.getElementById('chk_tech_reform').checked;
+            const techReason = document.getElementById('v_tech_reason').value;
+
+            // Logic for specific explanation tooltip
+            const explanationBox = document.getElementById('tech_explanation_box');
+            const explanationText = document.getElementById('tech_explanation_text');
+            
+            if (isTechReform && techReason.startsWith("6.")) {
+                explanationBox.classList.remove('hidden');
+                explanationText.innerText = "Le véhicule présente une corrosion perforante ou une vétusté généralisée affectant ses éléments de sécurité et de structure (longerons, plancher, ancrages). Toute réparation est techniquement proscrite selon les règles de l'art, car la rigidité structurelle n'est plus assurée. Véhicule déclaré dangereux.";
+            } else {
+                explanationBox.classList.add('hidden');
+            }
+
+            // Logic Eco Reform
+            const isEcoReformManual = document.getElementById('chk_eco_reform').checked;
+            const ecoReason = document.getElementById('v_eco_reason').value;
+
+            // --- UI HIDING LOGIC FOR AUDIT TABLE ---
+            const uiAuditSection = document.getElementById('ui-audit-section');
+            if (isTechReform) {
+                uiAuditSection.style.display = 'none';
+            } else {
+                uiAuditSection.style.display = 'block';
             }
 
             document.getElementById('v_valeur_raw').value = valNeuve;
@@ -616,7 +874,6 @@
             let dAnniv = new Date(dmec);
             let annee = 1;
 
-            // 1. Calcul Dépréciation Temporelle
             while(true) {
                 let dStart = new Date(dAnniv);
                 let dNext = new Date(dStart);
@@ -640,12 +897,10 @@
             const valBase = tableRows[tableRows.length - 1].valFin;
             const ageAnnees = (sinistre - dmec) / (1000 * 60 * 60 * 24 * 365.25);
             
-            // 2. Calcul Correctifs (si activés)
             let montantAdjKm = 0;
             let montantAdjEntretien = 0;
 
             if (useCorrectives) {
-                // A. Kilométrage
                 const refKmAn = getReferenceKmPerYear(cat, carb);
                 const kmTheorique = refKmAn * ageAnnees;
                 let ratioKm = 0;
@@ -656,10 +911,8 @@
                 if(ratioKm < -0.20) ratioKm = -0.20;
                 montantAdjKm = valBase * (-ratioKm);
 
-                // B. Entretien
                 montantAdjEntretien = valBase * (entretienPercent / 100);
 
-                // Update UI for impacts
                 const adjKmEl = document.getElementById('disp_adj_km');
                 adjKmEl.innerText = (montantAdjKm >= 0 ? "+" : "") + formatFinance(montantAdjKm);
                 adjKmEl.className = montantAdjKm >= 0 ? "font-bold text-emerald-500" : "font-bold text-rose-500";
@@ -669,24 +922,61 @@
                 adjEntEl.className = montantAdjEntretien >= 0 ? "font-bold text-emerald-500" : "font-bold text-rose-500";
             }
 
-            // 3. Valeur Finale & Seuil
-            const valFinale = valBase + montantAdjKm + montantAdjEntretien;
-            // Règle 2 : La franchise 2/3 s'applique sur la valeur vénale (finale si corrigée, sinon standard)
-            const seuilReform = (valFinale * 2) / 3;
+            // Calcul valeur technique "brute" (avant majoration marché)
+            const valTechnique = valBase + montantAdjKm + montantAdjEntretien;
 
-            // Stockage pour PDF
+            // --- NOUVELLE LOGIQUE MAJORATION MARCHÉ ---
+            const marketPercent = parseInt(document.getElementById('v_market_boost').value) || 0;
+            const marketValueAdded = valTechnique * (marketPercent / 100);
+            const valFinale = valTechnique + marketValueAdded; // C'est la VRADE Finale
+
+            // Mise à jour UI Majoration
+            document.getElementById('market-percent-display').innerText = "+" + marketPercent + "%";
+            document.getElementById('market-value-added').innerText = "+" + formatFinance(marketValueAdded);
+            document.getElementById('kpi-final-retained').innerText = formatFinance(valFinale);
+
+            // --- NOUVELLE LOGIQUE SEUIL : OPTION APPLY TO THRESHOLD ---
+            const applyToThreshold = document.getElementById('chk_apply_to_threshold').checked;
+            
+            let baseForThreshold = valBase;
+            if (applyToThreshold) {
+                baseForThreshold = valTechnique; 
+            }
+            const seuilReform = (baseForThreshold * 2) / 3;
+            const isEcoReformMath = montantDevis > seuilReform;
+            
+            // Mise à jour label
+            const labelSeuil = document.getElementById('kpi-seuil-label');
+            if (applyToThreshold) {
+                labelSeuil.innerText = "Seuil Réforme (2/3 Tech.)";
+                document.getElementById('dash_recap_seuil_label').innerText = "Seuil (2/3 Tech.)";
+            } else {
+                labelSeuil.innerText = "Seuil Réforme (2/3 Base)";
+                document.getElementById('dash_recap_seuil_label').innerText = "Seuil (2/3 Base)";
+            }
+
             tableDataForPDF = tableRows;
             finalCalculation = {
                 valBase: valBase,
                 adjKm: montantAdjKm,
                 adjEntretien: montantAdjEntretien,
-                valFinale: valFinale,
+                marketPercent: marketPercent,
+                marketValueAdded: marketValueAdded,
+                valFinale: valFinale, // VRADE
                 seuil: seuilReform,
                 km: kmCompteur,
-                useCorrectives: useCorrectives
+                useCorrectives: useCorrectives,
+                isTechReform: isTechReform,
+                techReason: techReason,
+                isEcoReformManual: isEcoReformManual,
+                ecoReason: ecoReason,
+                isEcoReformMath: isEcoReformMath,
+                applyToThreshold: applyToThreshold,
+                anciennete: `${annee-1} ans, ${tableRows[tableRows.length-1].jours} jrs`
             };
+            
+            window.latestCalculation = finalCalculation;
 
-            // 4. Affichage
             document.getElementById('label-vv-type').innerText = useCorrectives ? "Corrigée" : "Standard";
             document.getElementById('label-vv-sub').innerText = useCorrectives ? "Incluant correctifs KM & Entretien" : "Calcul sur dépréciation temporelle uniquement";
 
@@ -697,34 +987,65 @@
             impactEl.innerText = (totalImpact >= 0 && totalImpact > 0 ? "+" : "") + formatFinance(totalImpact);
             impactEl.className = totalImpact >= 0 ? "text-lg font-medium text-emerald-400 font-mono-num" : "text-lg font-medium text-rose-400 font-mono-num";
             
-            document.getElementById('kpi-anciennete').innerText = `${annee-1} ans, ${tableRows[tableRows.length-1].jours} jrs`;
+            document.getElementById('kpi-anciennete').innerText = finalCalculation.anciennete;
             document.getElementById('kpi-seuil').innerText = formatFinance(seuilReform);
 
-            // Update new Recap Table
             document.getElementById('dash_recap_val_neuf').innerText = formatFinance(valNeuve);
             document.getElementById('dash_recap_val_base').innerText = formatFinance(valBase);
             document.getElementById('dash_recap_impact').innerText = (totalImpact >= 0 && totalImpact > 0 ? "+" : "") + formatFinance(totalImpact);
-            document.getElementById('dash_recap_val_venale').innerText = formatFinance(valFinale);
+            
+            // "Valeur Vénale Technique" dans le tableau recap = Valeur Technique
+            document.getElementById('dash_recap_val_venale').innerText = formatFinance(valTechnique);
             document.getElementById('dash_recap_seuil').innerText = formatFinance(seuilReform);
 
             const decisionBox = document.getElementById('decision-box');
             const decisionLabel = document.getElementById('decision-label');
-            const isReform = montantDevis > seuilReform;
-
-            if (montantDevis > 0) {
-                decisionBox.className = isReform ? "decision-card bg-rose-50 p-8 rounded-[2.5rem] pro-shadow border-t-8 border-rose-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden" : "decision-card bg-emerald-50 p-8 rounded-[2.5rem] pro-shadow border-t-8 border-emerald-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden";
-                decisionLabel.innerText = isReform ? "RÉFORME ÉCONOMIQUE" : "RÉPARATION DU VHL";
-                decisionLabel.className = isReform ? "text-2xl md:text-3xl font-medium text-rose-700" : "text-2xl md:text-3xl font-medium text-emerald-700";
+            const decisionSub = document.getElementById('decision-sub');
+            const decisionReason = document.getElementById('decision-reason');
+            
+            // PRIORITY LOGIC
+            if (isTechReform) {
+                // PRIORITY 1: TECHNICAL (DARK RED)
+                decisionBox.className = "decision-card bg-red-100 p-8 rounded-[2.5rem] pro-shadow border-t-8 border-red-800 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden";
+                decisionLabel.innerText = "RÉFORME TECHNIQUE";
+                decisionLabel.className = "text-2xl md:text-3xl font-extrabold text-red-900 tracking-tight";
+                decisionSub.classList.remove('hidden');
+                decisionReason.innerText = techReason;
+            } else if (isEcoReformManual || isEcoReformMath) {
+                // PRIORITY 2: ECONOMIC (BRIGHT RED/ORANGE)
+                decisionBox.className = "decision-card bg-orange-50 p-8 rounded-[2.5rem] pro-shadow border-t-8 border-orange-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden";
+                decisionLabel.innerText = "RÉFORME ÉCONOMIQUE";
+                decisionLabel.className = "text-2xl md:text-3xl font-bold text-orange-600 tracking-tight";
+                decisionSub.classList.remove('hidden');
+                
+                if (isEcoReformManual) {
+                     decisionReason.innerText = ecoReason;
+                } else {
+                     decisionReason.innerText = "Montant des réparations > Seuil (" + formatFinance(seuilReform) + ")";
+                }
+            } else {
+                // PRIORITY 3: REPAIR (GREEN)
+                decisionSub.classList.add('hidden');
+                if (montantDevis > 0) {
+                    decisionBox.className = "decision-card bg-emerald-50 p-8 rounded-[2.5rem] pro-shadow border-t-8 border-emerald-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden";
+                    decisionLabel.innerText = "RÉPARATION DU VÉHICULE";
+                    decisionLabel.className = "text-2xl md:text-3xl font-medium text-emerald-700";
+                } else {
+                    // Default state
+                    decisionBox.className = "decision-card bg-white p-8 rounded-[2.5rem] pro-shadow border-t-8 border-slate-200 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden";
+                    decisionLabel.innerText = "En attente de saisie";
+                    decisionLabel.className = "text-2xl md:text-3xl font-medium text-slate-900 leading-tight";
+                }
             }
 
-            document.getElementById('vradeTable').innerHTML = tableRows.map(r => `
+            document.getElementById('vradeTable').innerHTML = tableDataForPDF.map(r => `
                 <tr class="hover:bg-indigo-50/20 transition-colors">
                     <td class="p-6 text-slate-500 font-medium">Année ${r.annee}</td>
                     <td class="p-6 text-sm text-slate-900 font-normal">${r.start.toLocaleDateString('fr-FR')} au ${r.end.toLocaleDateString('fr-FR')}</td>
                     <td class="p-6 text-center text-slate-600 font-medium">${(r.t*100).toFixed(0)}%</td>
                     <td class="p-6 text-right text-slate-600">${formatFinance(r.valDeb, false)}</td>
                     <td class="p-6 text-right text-rose-400 font-medium">-${formatFinance(r.perte, false)}</td>
-                    <td class="p-6 text-right text-slate-800 font-medium">${formatFinance(r.valFin, false)}</td>
+                    <td class="p-6 text-right text-slate-800 font-bold">${formatFinance(r.valFin, false)}</td>
                     <td class="p-6 text-center text-slate-400 font-medium">${r.jours}</td>
                 </tr>
             `).join('');
@@ -732,7 +1053,7 @@
             updateCharts(labels, plotData, valFinale, valNeuve - valFinale);
         }
 
-        function updateCharts(labels, values, finalVal, lossVal) {
+        window.updateCharts = function(labels, values, finalVal, lossVal) {
             if(chartEvo) chartEvo.destroy();
             if(chartDist) chartDist.destroy();
             const ctx1 = document.getElementById('chartEvo').getContext('2d');
@@ -740,7 +1061,7 @@
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{ label: 'Valeur résiduelle', data: values, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.05)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderWidth: 3 }]
+                    datasets: [{ label: 'Valeur résiduelle', data: values, borderColor: '#1e3a8a', backgroundColor: 'rgba(30, 58, 138, 0.05)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#fff', pointBorderWidth: 3 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatFinance(v, false) } } } }
             });
@@ -758,9 +1079,9 @@
                 options: {
                     responsive: true, maintainAspectRatio: false, cutout: '70%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 30, font: {size: 11, weight: '500'} } },
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 30, font: {size: 11, weight: '700'}, color: '#1e3a8a' } },
                         datalabels: {
-                            color: '#ffffff', font: { weight: '500', size: 12, family: 'Inter' },
+                            color: '#ffffff', font: { weight: 'bold', size: 12, family: 'Inter' },
                             textShadowColor: 'rgba(0,0,0,0.7)', textShadowBlur: 8,
                             formatter: (value, ctx) => {
                                 let sum = 0;
@@ -775,33 +1096,45 @@
         }
 
         // --- GÉNÉRATION DU PDF VIA TEMPLATE ---
-        function formatDateToFrench(dateStr) {
+        window.formatDateToFrench = function(dateStr) {
             if (!dateStr) return "--/--/----";
             const [y, m, d] = dateStr.split('-');
             return `${d}/${m}/${y}`;
         }
 
-        function downloadExpertisePDF() {
+        window.downloadExpertisePDF = function() {
             const valNeuve = document.getElementById('v_valeur_raw').value;
             if(parseFloat(valNeuve) <= 0) {
                 alert("Veuillez d'abord effectuer un calcul complet.");
                 return;
             }
 
-            // Remplissage du template
-            const refDossier = document.getElementById('v_ref').value;
-            document.getElementById('pdf-ref-display').innerText = refDossier ? refDossier : "VRADE-AUTOGEN";
+            if (typeof html2pdf === 'undefined') {
+                alert("La librairie PDF n'est pas chargée. Vérifiez votre connexion internet.");
+                return;
+            }
+
+            const element = document.getElementById('pdf-export-template');
             
-            document.getElementById('pdf-date-now').innerText = new Date().toLocaleDateString('fr-FR');
-            document.getElementById('pdf-val-neuve').innerText = formatFinance(parseFloat(document.getElementById('v_valeur_raw').value));
-            document.getElementById('pdf-dmec').innerText = formatDateToFrench(document.getElementById('v_dmec').value);
-            document.getElementById('pdf-sinistre').innerText = formatDateToFrench(document.getElementById('v_sinistre').value);
-            document.getElementById('pdf-devis').innerText = formatFinance(parseFloat(document.getElementById('v_devis_raw').value));
+            // Re-fetch reference for filename logic specifically
+            const refInput = document.getElementById('v_ref');
+            const refDossier = refInput ? refInput.value.trim() : '';
+
+            // Update PDF Content
+            safeSetText('pdf-ref-display', refDossier ? refDossier : "VRADE-AUTOGEN");
             
-            // Détail Calculs PDF
-            document.getElementById('pdf-val-base').innerText = formatFinance(finalCalculation.valBase);
+            const mat = document.getElementById('v_mat').value || '--';
+            safeSetText('pdf-mat', mat);
+
+            safeSetText('pdf-date-now', new Date().toLocaleDateString('fr-FR'));
+            safeSetText('pdf-val-neuve', formatFinance(parseFloat(document.getElementById('v_valeur_raw').value)));
+            safeSetText('pdf-dmec', formatDateToFrench(document.getElementById('v_dmec').value));
+            safeSetText('pdf-sinistre', formatDateToFrench(document.getElementById('v_sinistre').value));
+            safeSetText('pdf-devis', formatFinance(parseFloat(document.getElementById('v_devis_raw').value)));
             
-            // GESTION AFFICHAGE CORRECTIFS PDF
+            safeSetText('pdf-anciennete', finalCalculation.anciennete);
+            safeSetText('pdf-val-base', formatFinance(finalCalculation.valBase));
+            
             const rowKm = document.getElementById('pdf-row-km');
             const rowEnt = document.getElementById('pdf-row-ent');
             
@@ -809,62 +1142,161 @@
                 rowKm.style.display = 'table-row';
                 rowEnt.style.display = 'table-row';
                 
-                document.getElementById('pdf-km').innerText = finalCalculation.km + " km";
+                safeSetText('pdf-km', finalCalculation.km + " km");
                 
                 const adjKmEl = document.getElementById('pdf-adj-km');
-                adjKmEl.innerText = (finalCalculation.adjKm >= 0 ? "+" : "") + formatFinance(finalCalculation.adjKm);
-                adjKmEl.style.color = finalCalculation.adjKm >= 0 ? "#000" : "#000"; // Black per request (was colored)
+                if (adjKmEl) {
+                    adjKmEl.innerText = (finalCalculation.adjKm >= 0 ? "+" : "") + formatFinance(finalCalculation.adjKm);
+                    adjKmEl.style.color = "#000";
+                }
 
                 const adjEntEl = document.getElementById('pdf-adj-entretien');
-                adjEntEl.innerText = (finalCalculation.adjEntretien >= 0 ? "+" : "") + formatFinance(finalCalculation.adjEntretien);
-                adjEntEl.style.color = finalCalculation.adjEntretien >= 0 ? "#000" : "#000"; // Black per request
+                if (adjEntEl) {
+                    adjEntEl.innerText = (finalCalculation.adjEntretien >= 0 ? "+" : "") + formatFinance(finalCalculation.adjEntretien);
+                    adjEntEl.style.color = "#000";
+                }
             } else {
                 rowKm.style.display = 'none';
                 rowEnt.style.display = 'none';
-                document.getElementById('pdf-km').innerText = "Non renseigné";
+                safeSetText('pdf-km', "Non renseigné");
             }
 
-            document.getElementById('pdf-vv-final').innerText = formatFinance(finalCalculation.valFinale);
-            document.getElementById('pdf-seuil').innerText = formatFinance(finalCalculation.seuil);
+            safeSetText('pdf-vv-final', formatFinance(finalCalculation.valFinale));
+            safeSetText('pdf-seuil', formatFinance(finalCalculation.seuil));
+            
+            // Update PDF label based on option
+            const pdfThresholdLabel = document.getElementById('pdf-seuil-label');
+            if (pdfThresholdLabel) {
+                 if (finalCalculation.applyToThreshold) {
+                    pdfThresholdLabel.innerText = "Seuil Réforme (2/3 VRADE)";
+                } else {
+                    pdfThresholdLabel.innerText = "Seuil Réforme (2/3 de Base)";
+                }
+            }
             
             const decBox = document.getElementById('pdf-decision-box');
-            const currentDec = document.getElementById('decision-label').innerText;
-            decBox.innerText = currentDec;
-            if(currentDec.includes("RÉFORME")) {
-                // Keep minimal styling for emphasis but ensure readability
-                decBox.style.background = "#fff"; 
-                decBox.style.color = "#000";
-                decBox.style.border = "2px solid #000";
+            const techReasonBox = document.getElementById('pdf-tech-reason');
+            const techReasonText = document.getElementById('pdf-tech-reason-text');
+            const pdfAuditSection = document.getElementById('pdf-audit-section');
+
+            if(finalCalculation.isTechReform) {
+                // PDF FOR TECHNICAL REFORM
+                if(decBox) {
+                    decBox.innerText = "RÉFORME TECHNIQUE";
+                    decBox.style.color = "#7f1d1d"; // Dark Red
+                    decBox.style.borderColor = "#7f1d1d";
+                    decBox.style.backgroundColor = "#fee2e2";
+                }
+                if(techReasonBox) techReasonBox.style.display = "block";
+                if(techReasonText) techReasonText.innerText = finalCalculation.techReason;
+                
+                if(pdfAuditSection) pdfAuditSection.style.display = 'none';
+
+                if(finalCalculation.techReason.startsWith("6.") && techReasonText) {
+                     techReasonText.innerHTML += "<br><br><span style='font-weight:normal; font-style:italic; color:#555;'>Note : Le véhicule présente une corrosion perforante ou une vétusté généralisée affectant ses éléments de sécurité et de structure (longerons, plancher, ancrages). Toute réparation est techniquement proscrite selon les règles de l'art, car la rigidité structurelle n'est plus assurée. Véhicule déclaré dangereux.</span>";
+                }
+
+            } else if (finalCalculation.isEcoReformManual || finalCalculation.isEcoReformMath) {
+                // PDF FOR ECONOMIC REFORM
+                if(decBox) {
+                    decBox.innerText = "RÉFORME ÉCONOMIQUE";
+                    decBox.style.color = "#c2410c"; // Orange/Red
+                    decBox.style.borderColor = "#c2410c";
+                    decBox.style.backgroundColor = "#fff7ed";
+                }
+                if(techReasonBox) techReasonBox.style.display = "block";
+                
+                if(finalCalculation.isEcoReformManual) {
+                     if(techReasonText) techReasonText.innerText = "Motif : " + finalCalculation.ecoReason;
+                } else {
+                     if(techReasonText) techReasonText.innerText = "Motif : Montant des réparations > Seuil (" + formatFinance(finalCalculation.seuil) + ")";
+                }
+
+                if(pdfAuditSection) pdfAuditSection.style.display = 'block';
+
             } else {
-                decBox.style.background = "#fff"; 
-                decBox.style.color = "#000";
-                decBox.style.border = "2px solid #000";
+                // PDF FOR REPAIR
+                if(techReasonBox) techReasonBox.style.display = "none";
+                if(pdfAuditSection) pdfAuditSection.style.display = 'block';
+                
+                if(decBox) {
+                    decBox.innerText = "RÉPARATION DU VÉHICULE";
+                    decBox.style.color = "#065f46";
+                    decBox.style.borderColor = "#065f46";
+                    decBox.style.backgroundColor = "#fff";
+                }
             }
 
             document.getElementById('pdf-table-body').innerHTML = tableDataForPDF.map(r => `
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #000;">Année ${r.annee}</td>
-                    <td style="padding: 8px; border: 1px solid #000;">${r.start.toLocaleDateString()} au ${r.end.toLocaleDateString()}</td>
-                    <td style="padding: 8px; border: 1px solid #000; text-align: center;">${(r.t*100).toFixed(0)}%</td>
-                    <td style="padding: 8px; border: 1px solid #000; text-align: right;">-${formatFinance(r.perte, false)}</td>
-                    <td style="padding: 8px; border: 1px solid #000; text-align: right; font-weight: 500;">${formatFinance(r.valFin, false)}</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Année ${r.annee}</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0;">${r.start.toLocaleDateString()} au ${r.end.toLocaleDateString()}</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">${(r.t*100).toFixed(0)}%</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right;">-${formatFinance(r.perte, false)}</td>
+                    <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right; font-weight: 700;">${formatFinance(r.valFin, false)}</td>
                 </tr>
             `).join('');
 
-            const element = document.getElementById('pdf-export-template');
-            element.style.display = 'block';
+            // --- PDF INJECTION FOR MARKET BOOST ---
+            let boostRow = document.getElementById('pdf-boost-row');
+            if(!boostRow) {
+                const finalRow = document.querySelector('#pdf-vv-final').parentNode;
+                boostRow = document.createElement('tr');
+                boostRow.id = 'pdf-boost-row';
+                boostRow.innerHTML = `
+                    <td style="padding: 3px; color: #64748b; font-weight: 600;">Majoration Marché (+<span id="pdf-boost-pct">0</span>%) :</td>
+                    <td id="pdf-boost-val" style="padding: 3px; text-align: right; font-weight: bold; color: #000;">+0,00 Dhs</td>
+                `;
+                finalRow.parentNode.insertBefore(boostRow, finalRow);
+            }
+            
+            if (finalCalculation.marketPercent > 0) {
+                safeSetText('pdf-boost-pct', finalCalculation.marketPercent);
+                safeSetText('pdf-boost-val', "+" + formatFinance(finalCalculation.marketValueAdded));
+                boostRow.style.display = 'table-row';
+            } else {
+                boostRow.style.display = 'none';
+            }
 
-            const opt = {
-                margin: 10,
-                filename: 'Expertise_BETCAM_' + new Date().getTime() + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            // --- STRATÉGIE "LOADING" SANS OVERLAY GLITCH ---
+            const appWrapper = document.getElementById('app-wrapper');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            // 1. Afficher l'écran de chargement propre (couvre tout)
+            loadingOverlay.style.display = 'flex';
+            
+            setTimeout(() => {
+                // 2. Pendant que l'écran est caché par le loadingOverlay:
+                appWrapper.style.display = 'none';
+                element.style.display = 'block';
+                window.scrollTo(0, 0);
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = 'none';
-            });
+                let filenameRef = refDossier ? refDossier.replace(/[\/\\ ]/g, '-') : 'AUTOGEN';
+                
+                const opt = {
+                    margin: 5, // Marges réduites
+                    filename: 'Expertise_BETCAM_' + filenameRef + '.pdf',
+                    image: { type: 'jpeg', quality: 1.0 }, // Qualité max
+                    html2canvas: { scale: 2, useCORS: true }, 
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save()
+                .then(() => {
+                    // 3. Restauration
+                    element.style.display = 'none';
+                    appWrapper.style.display = 'block';
+                    loadingOverlay.style.display = 'none'; // Retirer le loading
+                    window.scrollTo(0, 0);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    alert("Erreur PDF : " + err.message);
+                    element.style.display = 'none';
+                    appWrapper.style.display = 'block';
+                    loadingOverlay.style.display = 'none';
+                });
+            }, 100); // Court délai pour permettre au DOM de render le loadingOverlay
         }
 
         window.onload = updateVrade;
