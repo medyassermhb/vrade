@@ -712,6 +712,17 @@
                             <td style="padding: 4px 6px; font-weight: 600; color: #64748b;">Kilométrage :</td>
                             <td id="pdf-km" style="padding: 4px 6px; font-weight: 700;">0 km</td>
                         </tr>
+                        <tr>
+                            <td style="padding: 4px 6px; font-weight: 600; color: #64748b;">Énergie :</td>
+                            <td id="pdf-energie" style="padding: 4px 6px; font-weight: 700;">--</td>
+                            <td style="padding: 4px 6px; font-weight: 600; color: #64748b;">Puissance Fiscale :</td>
+                            <td id="pdf-puissance" style="padding: 4px 6px; font-weight: 700;">--</td>
+                        </tr>
+                        <!-- NEW ROW -->
+                        <tr>
+                            <td style="padding: 4px 6px; font-weight: 600; color: #64748b;">Catégorie :</td>
+                            <td id="pdf-cat" colspan="3" style="padding: 4px 6px; font-weight: 700;">--</td>
+                        </tr>
                     </table>
                 </div>
 
@@ -1330,6 +1341,19 @@
 
             const marqueModele = document.getElementById('v_marque_modele').value || '--';
             safeSetText('pdf-marque-modele', marqueModele);
+
+            // --- MISE A JOUR JS POUR L'ENERGIE ET LA PUISSANCE ---
+            const energie = document.getElementById('v_carb').value || '--';
+            safeSetText('pdf-energie', energie);
+
+            const puissance = document.getElementById('v_pf').value || '--';
+            safeSetText('pdf-puissance', puissance + " CV");
+            
+            // --- MISE A JOUR JS POUR LA CATEGORIE ---
+            const catSelect = document.getElementById('v_cat');
+            const catText = catSelect.options[catSelect.selectedIndex].text;
+            safeSetText('pdf-cat', catText);
+            // ----------------------------------------------------
 
             const dateExpertise = document.getElementById('v_date_expertise').value;
             safeSetText('pdf-date-expertise', formatDateToFrench(dateExpertise));
