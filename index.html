@@ -1457,7 +1457,8 @@
                     }
                 }
                 
-                if(pdfAuditSection) pdfAuditSection.style.display = 'none';
+                // MODIFICATION : On affiche le tableau de dépréciation même en cas de réforme technique
+                if(pdfAuditSection) pdfAuditSection.style.display = 'block';
             
             // SPECIAL CASE: Accord Validé (Priorité sur Eco)
             } else if (finalCalculation.accordDevis > 0 && finalCalculation.accordDevis <= finalCalculation.seuil) {
